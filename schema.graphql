@@ -1,0 +1,95 @@
+# This file was generated based on ".graphqlconfig". Do not edit manually.
+
+schema {
+  query: Query
+  mutation: Mutation
+  subscription: Subscription
+}
+
+union CreateLobbyResult = AlreadyJoined | Lobby
+
+union JoinLobbyResult = AlreadyJoined | Lobby
+
+union RegisterResult = User | UsernameAlreadyUsed
+
+union StartGameResult = Game | GameAlreadyStarted | NotInLobby
+
+type AlreadyJoined {
+  message: String!
+}
+
+type ChatMessage {
+  from: User!
+  message: String!
+}
+
+type Game {
+  players: [User!]!
+}
+
+type GameAlreadyStarted {
+  message: String!
+}
+
+type JWT {
+  accessToken: String
+  refreshToken: String
+}
+
+type Lobby {
+  id: Float!
+  name: String!
+}
+
+type Mutation {
+  createAndJoinLobby(input: CreateLobbyInput!): CreateLobbyResult!
+  joinLobby(input: JoinLobbyInput!): JoinLobbyResult!
+  login(input: LoginInput!): JWT
+  register(input: RegisterInput!): RegisterResult!
+  sendChatMessage(input: ChatMessageInput!): Boolean!
+  startGame: StartGameResult!
+}
+
+type NotInLobby {
+  message: String!
+}
+
+type Query {
+  lobbies: [Lobby!]!
+}
+
+type Subscription {
+  newChatMessage: ChatMessage!
+}
+
+type User {
+  email: String!
+  username: String!
+}
+
+type UsernameAlreadyUsed {
+  message: String!
+}
+
+input ChatMessageInput {
+  message: String!
+}
+
+input CreateLobbyInput {
+  name: String!
+}
+
+input JoinLobbyInput {
+  id: Float!
+}
+
+input LoginInput {
+  password: String!
+  username: String!
+}
+
+input RegisterInput {
+  email: String!
+  password: String!
+  username: String!
+}
