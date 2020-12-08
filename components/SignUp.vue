@@ -21,7 +21,7 @@
 </template>
 
 <script>
-import signUp from '~/apollo/queries/signUp'
+import signUp from '~/apollo/mutations/signUp'
 
 export default {
   layout: 'login',

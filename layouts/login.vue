@@ -1,5 +1,5 @@
 <template>
-  <v-app dark>
+  <v-app>
     <v-main>
       <v-container fill-height>
         <v-row align="center" justify="center">

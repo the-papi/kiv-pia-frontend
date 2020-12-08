@@ -9,19 +9,32 @@
     </v-card-text>
     <v-card-actions>
       <v-spacer />
-      <v-btn color="primary" @click="signIn">
+      <v-btn color="primary" :loading="loading" @click="signIn">
         Sign In
       </v-btn>
     </v-card-actions>
+
+    <v-snackbar v-model="invalidLogin" color="red">
+      Invalid login credentials
+    </v-snackbar>
   </v-card>
 </template>
 
 <script>
-import signIn from '~/apollo/queries/signIn'
+import signIn from '~/apollo/mutations/signIn'
+import me from '~/apollo/queries/me'
 
 export default {
   layout: 'login',
+  props: {
+    redirectOnSuccess: {
+      type: String,
+      default: null
+    }
+  },
   data: () => ({
+    loading: false,
+    invalidLogin: false,
     username: '',
     password: '',
     usernameRules: [value => !!value || 'Required'],
@@ -29,12 +42,31 @@ export default {
   }),
   methods: {
     signIn () {
+      this.loading = true
       this.$apollo.mutate({
         mutation: signIn,
         variables: {
           username: this.username,
           password: this.password
         }
+      }).then(async (signIn) => {
+        if (signIn.data.login) {
+          await this.$apolloHelpers.onLogin(signIn.data.login.accessToken)
+          this.$apollo.query({
+            query: me
+          }).then((me) => {
+            this.$store.commit('account/set', me.data.me)
+          })
+
+          if (this.redirectOnSuccess) {
+            await this.$router.push(this.redirectOnSuccess)
+          }
+        } else {
+          this.invalidLogin = true
+        }
+        this.loading = false
+      }).catch((e) => {
+        this.loading = false
       })
     }
   }

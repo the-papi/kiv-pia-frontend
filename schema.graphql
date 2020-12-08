@@ -6,17 +6,9 @@ schema {
   subscription: Subscription
 }
 
-union CreateLobbyResult = AlreadyJoined | Lobby
-
-union JoinLobbyResult = AlreadyJoined | Lobby
+union GameResponseResult = Game | GameDoesntExist | PlayerAlreadyInGame
 
 union RegisterResult = User | UsernameAlreadyUsed
-
-union StartGameResult = Game | GameAlreadyStarted | NotInLobby
-
-type AlreadyJoined {
-  message: String!
-}
 
 type ChatMessage {
   from: User!
@@ -24,11 +16,21 @@ type ChatMessage {
 }
 
 type Game {
-  players: [User!]!
+  players: [Player!]!
 }
 
-type GameAlreadyStarted {
+type GameDoesntExist {
   message: String!
+}
+
+type GameRequest {
+  from: User!
+  requestId: String!
+}
+
+type GameResponse {
+  requestId: String!
+  status: GameSymbol!
 }
 
 type JWT {
@@ -36,51 +38,73 @@ type JWT {
   refreshToken: String
 }
 
-type Lobby {
-  id: Float!
-  name: String!
-}
-
 type Mutation {
-  createAndJoinLobby(input: CreateLobbyInput!): CreateLobbyResult!
-  joinLobby(input: JoinLobbyInput!): JoinLobbyResult!
+  acceptGameRequestAndStartGame(input: GameResponseInput!): GameResponseResult!
   login(input: LoginInput!): JWT
   register(input: RegisterInput!): RegisterResult!
   sendChatMessage(input: ChatMessageInput!): Boolean!
-  startGame: StartGameResult!
+  sendGameRequest(input: GameRequestInput!): String
 }
 
-type NotInLobby {
+type Player {
+  user: User!
+}
+
+type PlayerAlreadyInGame {
   message: String!
 }
 
+type Profile {
+  email: String!
+  id: Float!
+  username: String!
+}
+
 type Query {
-  lobbies: [Lobby!]!
+  me: Profile!
 }
 
 type Subscription {
+  gameRequest: GameRequest!
+  gameResponse: GameResponse!
   newChatMessage: ChatMessage!
+  userStatus: UserStatusUpdate!
 }
 
 type User {
-  email: String!
+  id: Float!
   username: String!
+}
+
+type UserStatusUpdate {
+  status: UserStatus!
+  user: User!
 }
 
 type UsernameAlreadyUsed {
   message: String!
 }
 
+enum GameSymbol {
+  Accepted
+  Rejected
+}
+
+enum UserStatus {
+  Offline
+  Online
+}
+
 input ChatMessageInput {
   message: String!
 }
 
-input CreateLobbyInput {
-  name: String!
+input GameRequestInput {
+  userId: Float!
 }
 
-input JoinLobbyInput {
-  id: Float!
+input GameResponseInput {
+  requestId: String!
 }
 
 input LoginInput {

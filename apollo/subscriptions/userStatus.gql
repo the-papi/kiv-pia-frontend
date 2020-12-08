@@ -1,0 +1,9 @@
+subscription {
+  userStatus {
+    status
+    user {
+      id
+      username
+    }
+  }
+}

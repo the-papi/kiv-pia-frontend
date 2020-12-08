@@ -27,6 +27,7 @@ export default {
 
   // Plugins to run before rendering page (https://go.nuxtjs.dev/config-plugins)
   plugins: [
+    { src: '~/plugins/persistedState.client.js' }
   ],
 
   // Auto import components (https://go.nuxtjs.dev/config-components)
@@ -57,8 +58,8 @@ export default {
       dark: false,
       themes: {
         light: {
-          primary: colors.blue.lighten2,
-          accent: colors.grey.lighten3,
+          primary: colors.blue.lighten1,
+          accent: colors.grey.lighten1,
           secondary: colors.amber.lighten3,
           info: colors.teal.lighten1,
           warning: colors.amber.base,
@@ -73,7 +74,8 @@ export default {
   apollo: {
     clientConfigs: {
       default: {
-        httpEndpoint: 'http://localhost:4000'
+        httpEndpoint: 'http://localhost:4000',
+        wsEndpoint: 'ws://localhost:4000/graphql'
       }
     }
   },

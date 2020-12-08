@@ -11,7 +11,7 @@
           Sign Up
         </v-tab>
         <v-tab-item>
-          <SignIn />
+          <SignIn redirect-on-success="/dashboard" />
         </v-tab-item>
         <v-tab-item>
           <SignUp />
