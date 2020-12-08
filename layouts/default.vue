@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <div style="z-index: 9999">
+    <div>
       <v-app-bar
         color="primary"
         dense
