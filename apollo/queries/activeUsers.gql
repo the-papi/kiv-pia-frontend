@@ -1,0 +1,9 @@
+query {
+  activeUsers {
+    user {
+      id
+      username
+    }
+    status
+  }
+}

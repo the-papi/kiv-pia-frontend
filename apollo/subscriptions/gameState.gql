@@ -1,0 +1,7 @@
+subscription {
+  gameState {
+    x
+    y
+    symbol
+  }
+}

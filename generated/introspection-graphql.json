@@ -1,0 +1,33 @@
+{
+  "__schema": {
+    "types": [
+      {
+        "kind": "UNION",
+        "name": "RegisterResult",
+        "possibleTypes": [
+          {
+            "name": "User"
+          },
+          {
+            "name": "UsernameAlreadyUsed"
+          }
+        ]
+      },
+      {
+        "kind": "UNION",
+        "name": "GameResponseResult",
+        "possibleTypes": [
+          {
+            "name": "Game"
+          },
+          {
+            "name": "PlayerAlreadyInGame"
+          },
+          {
+            "name": "GameDoesntExist"
+          }
+        ]
+      }
+    ]
+  }
+}

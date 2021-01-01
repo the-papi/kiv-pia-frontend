@@ -1,0 +1,9 @@
+subscription {
+  gameRequest {
+    requestId
+    from {
+      id
+      username
+    }
+  }
+}

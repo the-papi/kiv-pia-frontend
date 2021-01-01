@@ -1,0 +1,3 @@
+mutation SendGameRequest($userId: Int!) {
+  sendGameRequest(input: {userId: $userId})
+}

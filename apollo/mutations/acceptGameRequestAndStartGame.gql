@@ -1,0 +1,17 @@
+mutation AcceptGameRequestAndStartGame($requestId: String!) {
+  acceptGameRequestAndStartGame(input: { requestId: $requestId }) {
+    ... on Game {
+      players {
+        user {
+          username
+        }
+      }
+    }
+    ... on PlayerAlreadyInGame {
+      message
+    }
+    ... on GameDoesntExist {
+      message
+    }
+  }
+}

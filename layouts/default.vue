@@ -25,10 +25,7 @@
         <v-spacer />
         <v-spacer />
         {{ this.$store.state.account.username }}
-        <v-menu
-          left
-          bottom
-        >
+        <v-menu transition="slide-y-transition" offset-y left>
           <template v-slot:activator="{ on, attrs }">
             <v-btn
               icon
@@ -40,12 +37,8 @@
           </template>
 
           <v-list>
-            <v-list-item
-              v-for="n in 5"
-              :key="n"
-              @click="() => {}"
-            >
-              <v-list-item-title>Option {{ n }}</v-list-item-title>
+            <v-list-item to="/profile">
+              <v-list-item-title>My profile</v-list-item-title>
             </v-list-item>
           </v-list>
         </v-menu>
@@ -63,7 +56,7 @@
         <v-container class="pa-16" fill-height>
           <v-row>
             <v-col />
-            <v-col cols="12" sm="10" md="8" lg="7" xl="4">
+            <v-col cols="12" sm="10" md="8" lg="7" xl="6">
               <nuxt />
             </v-col>
             <v-col />
@@ -94,6 +87,7 @@ import UserList from '@/components/UserList'
 
 export default {
   components: { UserList },
+  middleware: ['auth'],
   data: () => ({
     users: []
   })

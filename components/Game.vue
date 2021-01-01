@@ -1,16 +1,48 @@
 <template>
   <v-card ref="gameContainer" fluid height="100%">
-    <ResizeObserver @notify="onResize" />
-    <canvas
-      id="game"
-      ref="game"
-      @click="placeSymbol"
-    />
+    <div ref="foo" class="red--text" />
+    <v-card-title>
+      <v-row>
+        <v-col v-if="myPlayer">
+          <span :class="{ 'text-decoration-underline': myTurn }">{{ myPlayer.user.username }}</span>
+          <v-icon v-if="myPlayer.symbol.toLowerCase() === 'cross'" color="red">
+            mdi-close
+          </v-icon>
+          <v-icon v-if="myPlayer.symbol.toLowerCase() === 'circle'" color="blue">
+            mdi-circle-outline
+          </v-icon>
+        </v-col>
+        <v-col class="text-center">
+          vs.
+        </v-col>
+        <v-col v-if="opponentPlayer" class="text-right">
+          <span :class="{ 'text-decoration-underline': !myTurn }">{{ opponentPlayer.user.username }}</span>
+          <v-icon v-if="opponentPlayer.symbol.toLowerCase() === 'cross'" color="red">
+            mdi-close
+          </v-icon>
+          <v-icon v-if="opponentPlayer.symbol.toLowerCase() === 'circle'" color="blue">
+            mdi-circle-outline
+          </v-icon>
+        </v-col>
+      </v-row>
+    </v-card-title>
+    <v-card-text ref="gameWrapper">
+      <ResizeObserver @notify="onResize" />
+      <canvas
+        id="game"
+        ref="game"
+        @click="placeSymbolEvent"
+      />
+    </v-card-text>
   </v-card>
 </template>
 
 <script>
 import ResizeObserver from 'vue-resize/src/components/ResizeObserver'
+import gameState from '@/apollo/subscriptions/gameState'
+import placeSymbol from '@/apollo/mutations/placeSymbol'
+import activeGame from '@/apollo/queries/activeGame'
+import colors from 'vuetify/es5/util/colors'
 
 export default {
   name: 'Game',
@@ -18,34 +50,84 @@ export default {
     ResizeObserver
   },
   data: () => ({
-    squareSize: 40,
+    squareSize: 30,
     dragStartCoords: {
       width: null,
       height: null
     },
-    symbols: {}
+    symbols: {},
+    myPlayer: null,
+    opponentPlayer: null,
+    myTurn: false
   }),
   mounted () {
+    const that = this
+
+    const gameStateObserver = this.$apollo.subscribe({
+      query: gameState
+    })
+    gameStateObserver.subscribe({
+      next (data) {
+        const gameStateData = data.data.gameState
+        that.placeSymbol(gameStateData.x, gameStateData.y, gameStateData.symbol.toLowerCase())
+        that.myTurn = true
+      }
+    })
+
+    this.$apollo.query({
+      query: activeGame
+    }).then((data) => {
+      const activeGame = data.data.activeGame
+
+      for (const player of activeGame.players) {
+        if (player.user.username === that.$store.state.account.username) {
+          that.myPlayer = player
+        } else {
+          that.opponentPlayer = player
+        }
+      }
+
+      for (const gameState of activeGame.gameStates) {
+        this.placeSymbol(gameState.x, gameState.y, gameState.symbol.toLowerCase())
+      }
+      if (activeGame.gameStates.length) {
+        const lastGameState = activeGame.gameStates[activeGame.gameStates.length - 1]
+        if (lastGameState.symbol !== this.myPlayer.symbol) {
+          this.myTurn = true
+        }
+      }
+    })
+
     this.onResize()
   },
   methods: {
     onResize () {
-      this.$refs.game.width = this.$refs.game.parentElement.clientWidth - 1
-      this.$refs.game.height = this.$refs.game.parentElement.clientHeight - 10
+      const style = window.getComputedStyle(this.$refs.gameWrapper, null)
+      const paddingLeft = +style.paddingLeft.slice(0, -2)
+      const paddingRight = +style.paddingRight.slice(0, -2)
+      const paddingTop = +style.paddingTop.slice(0, -2)
+      const paddingBottom = +style.paddingBottom.slice(0, -2)
+      const parentWidth = +style.getPropertyValue('width').slice(0, -2) - paddingLeft - paddingRight
+      const parentHeight = +style.getPropertyValue('width').slice(0, -2) - paddingTop - paddingBottom
+
+      this.$refs.game.width = parentWidth
+      this.$refs.game.height = parentHeight
+
       this.draw()
     },
     draw () {
       const canvas = this.$refs.game
       const ctx = canvas.getContext('2d')
+      ctx.imageSmoothingEnabled = false
       ctx.clearRect(0, 0, canvas.width, canvas.height)
       this.drawMatrix(ctx, canvas.width, canvas.height)
       this.drawSymbols(ctx, canvas.width, canvas.height)
-      this.drawDebug(ctx, canvas.width, canvas.height)
+      // this.drawDebug(ctx, canvas.width, canvas.height)
     },
     drawMatrix (ctx, width, height) {
-      const xPos = width / 2
-      const stepDiff = this.squareSize
-      let diff = this.squareSize / 2
+      const xPos = Math.round(width / 2) + 0.5
+      const stepDiff = Math.round(this.squareSize)
+      let diff = Math.round(this.squareSize / 2)
 
       while (diff < width / 2) {
         ctx.beginPath()
@@ -63,8 +145,8 @@ export default {
         diff += stepDiff
       }
 
-      const yPos = height / 2
-      diff = this.squareSize / 2
+      const yPos = Math.round(height / 2) + 0.5
+      diff = Math.round(this.squareSize / 2)
 
       while (diff < height / 2) {
         ctx.beginPath()
@@ -129,23 +211,38 @@ export default {
 
       ctx.translate(-15, 0)
     },
-    placeSymbol (event) {
+    placeSymbolEvent (event) {
       const x = event.clientX - event.target.getBoundingClientRect().left - event.target.width / 2
       const y = event.clientY - event.target.getBoundingClientRect().top - event.target.height / 2
 
       const gameX = Math.floor((x + this.squareSize / 2) / this.squareSize)
       const gameY = Math.floor((y + this.squareSize / 2) / this.squareSize)
 
-      if (this.symbols[gameX] && this.symbols[gameX][gameY]) {
+      const that = this
+      this.$apollo.mutate({
+        mutation: placeSymbol,
+        variables: {
+          x: gameX,
+          y: gameY
+        }
+      }).then((data) => {
+        if (data.data.placeSymbol) {
+          that.placeSymbol(gameX, gameY, this.myPlayer.symbol.toLowerCase())
+          this.myTurn = false
+        }
+      })
+    },
+    placeSymbol (x, y, symbol) {
+      if (this.symbols[x] && this.symbols[x][y]) {
         return
       }
 
-      if (!this.symbols[gameX]) {
-        this.symbols[gameX] = {}
+      if (!this.symbols[x]) {
+        this.symbols[x] = {}
       }
 
-      this.symbols[gameX][gameY] = {
-        type: 'cross'
+      this.symbols[x][y] = {
+        type: symbol
       }
 
       this.draw()
@@ -157,25 +254,30 @@ export default {
           const translateY = y * this.squareSize + height / 2
           ctx.translate(translateX, translateY)
           if (this.symbols[x][y].type === 'circle') {
-            this.drawCircle(ctx, 13)
+            this.drawCircle(ctx, 10)
           } else if (this.symbols[x][y].type === 'cross') {
-            this.drawCross(ctx, 13)
+            this.drawCross(ctx, 10)
           }
           ctx.translate(-translateX, -translateY)
         }
       }
     },
     drawCircle (ctx, radius) {
+      const oldStrokeStyle = ctx.strokeStyle
       const oldLineWidth = ctx.lineWidth
-      ctx.lineWidth = 5
+      ctx.strokeStyle = colors.blue.base
+      ctx.lineWidth = 3
       ctx.beginPath()
       ctx.arc(0, 0, radius, 0, 2 * Math.PI)
       ctx.stroke()
       ctx.lineWidth = oldLineWidth
+      ctx.strokeStyle = oldStrokeStyle
     },
     drawCross (ctx, radius) {
+      const oldStrokeStyle = ctx.strokeStyle
       const oldLineWidth = ctx.lineWidth
-      ctx.lineWidth = 5
+      ctx.strokeStyle = colors.red.base
+      ctx.lineWidth = 3
       ctx.beginPath()
       ctx.moveTo(-radius, -radius)
       ctx.lineTo(radius, radius)
@@ -183,6 +285,7 @@ export default {
       ctx.lineTo(radius, -radius)
       ctx.stroke()
       ctx.lineWidth = oldLineWidth
+      ctx.strokeStyle = oldStrokeStyle
     }
   }
 }

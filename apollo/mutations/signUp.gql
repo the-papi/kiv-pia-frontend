@@ -7,7 +7,6 @@ mutation Register($username: String!, $email: String!, $password: String!) {
     }
   ) {
     ... on User {
-      email
       username
     }
     ... on UsernameAlreadyUsed {

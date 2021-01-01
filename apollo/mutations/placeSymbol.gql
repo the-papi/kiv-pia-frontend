@@ -1,0 +1,3 @@
+mutation PlaceSymbol($x: Int!, $y: Int!) {
+  placeSymbol(input: {x: $x, y: $y})
+}

@@ -1,0 +1,16 @@
+query {
+  activeGame {
+    players {
+      user {
+        id
+        username
+      }
+      symbol
+    }
+    gameStates {
+      x
+      y
+      symbol
+    }
+  }
+}

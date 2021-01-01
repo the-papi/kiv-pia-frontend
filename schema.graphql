@@ -16,6 +16,7 @@ type ChatMessage {
 }
 
 type Game {
+  gameStates: [GameState!]!
   players: [Player!]!
 }
 
@@ -30,7 +31,13 @@ type GameRequest {
 
 type GameResponse {
   requestId: String!
-  status: GameSymbol!
+  status: GameResponseStatus!
+}
+
+type GameState {
+  symbol: GameSymbol!
+  x: Int!
+  y: Int!
 }
 
 type JWT {
@@ -41,12 +48,14 @@ type JWT {
 type Mutation {
   acceptGameRequestAndStartGame(input: GameResponseInput!): GameResponseResult!
   login(input: LoginInput!): JWT
+  placeSymbol(input: PlaceSymbolInput!): Boolean!
   register(input: RegisterInput!): RegisterResult!
   sendChatMessage(input: ChatMessageInput!): Boolean!
   sendGameRequest(input: GameRequestInput!): String
 }
 
 type Player {
+  symbol: GameSymbol!
   user: User!
 }
 
@@ -61,12 +70,15 @@ type Profile {
 }
 
 type Query {
+  activeGame: Game
+  activeUsers: [UserStatusUpdate!]
   me: Profile!
 }
 
 type Subscription {
   gameRequest: GameRequest!
   gameResponse: GameResponse!
+  gameState: GameState!
   newChatMessage: ChatMessage!
   userStatus: UserStatusUpdate!
 }
@@ -85,9 +97,14 @@ type UsernameAlreadyUsed {
   message: String!
 }
 
-enum GameSymbol {
+enum GameResponseStatus {
   Accepted
   Rejected
+}
+
+enum GameSymbol {
+  Circle
+  Cross
 }
 
 enum UserStatus {
@@ -100,7 +117,7 @@ input ChatMessageInput {
 }
 
 input GameRequestInput {
-  userId: Float!
+  userId: Int!
 }
 
 input GameResponseInput {
@@ -110,6 +127,11 @@ input GameResponseInput {
 input LoginInput {
   password: String!
   username: String!
+}
+
+input PlaceSymbolInput {
+  x: Int!
+  y: Int!
 }
 
 input RegisterInput {
