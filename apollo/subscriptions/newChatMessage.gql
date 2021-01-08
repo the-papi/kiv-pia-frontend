@@ -1,0 +1,10 @@
+subscription {
+  newChatMessage {
+    id
+    from {
+      username
+    }
+    message
+    time
+  }
+}

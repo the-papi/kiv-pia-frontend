@@ -1,0 +1,11 @@
+mutation CancelGameRequest($requestId: String!) {
+  cancelGameRequest(input: {requestId: $requestId}) {
+    ... on GameDoesntExist {
+      message
+    }
+    ... on GeneralStatus {
+      status
+      message
+    }
+  }
+}

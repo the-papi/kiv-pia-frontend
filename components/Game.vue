@@ -1,43 +1,72 @@
 <template>
-  <v-card ref="gameContainer" fluid height="100%">
-    <div ref="foo" class="red--text" />
-    <v-card-title>
-      <v-row>
-        <v-col v-if="myPlayer">
-          <span :class="{ 'text-decoration-underline': myTurn }">{{ myPlayer.user.username }}</span>
-          <v-icon v-if="myPlayer.symbol.toLowerCase() === 'cross'" color="red">
-            mdi-close
-          </v-icon>
-          <v-icon v-if="myPlayer.symbol.toLowerCase() === 'circle'" color="blue">
-            mdi-circle-outline
-          </v-icon>
-        </v-col>
-        <v-col class="text-center">
-          vs.
-        </v-col>
-        <v-col v-if="opponentPlayer" class="text-right">
-          <span :class="{ 'text-decoration-underline': !myTurn }">{{ opponentPlayer.user.username }}</span>
-          <v-icon v-if="opponentPlayer.symbol.toLowerCase() === 'cross'" color="red">
-            mdi-close
-          </v-icon>
-          <v-icon v-if="opponentPlayer.symbol.toLowerCase() === 'circle'" color="blue">
-            mdi-circle-outline
-          </v-icon>
-        </v-col>
-      </v-row>
-    </v-card-title>
-    <v-card-text ref="gameWrapper">
-      <ResizeObserver @notify="onResize" />
-      <canvas
-        id="game"
-        ref="game"
-        @click="placeSymbolEvent"
-      />
-    </v-card-text>
-  </v-card>
+  <div>
+    <v-row>
+      <v-col>
+        <v-dialog v-if="winner" v-model="showWinDialog" persistent max-width="290">
+          <v-card>
+            <v-card-title class="headline">
+              <span v-if="opponentPlayer && winner && myPlayer.user.username !== winner.user.username">You lost!</span>
+              <span v-else>You won!</span>
+            </v-card-title>
+            <v-card-text>Player {{ winner.user.username }} has won the game!</v-card-text>
+            <v-card-actions>
+              <v-spacer />
+              <v-btn color="primary" text @click="showWinDialog = false; $router.push('/dashboard')">
+                Ok
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+        <v-card>
+          <v-card-title>
+            <v-row>
+              <v-col v-if="myPlayer">
+                <span :class="{ 'text-decoration-underline': myTurn }">{{ myPlayer.user.username }}</span>
+                <v-icon v-if="myPlayer.symbol.toLowerCase() === 'cross'" color="red">
+                  mdi-close
+                </v-icon>
+                <v-icon v-if="myPlayer.symbol.toLowerCase() === 'circle'" color="blue">
+                  mdi-circle-outline
+                </v-icon>
+              </v-col>
+              <v-col class="text-center">
+                vs.
+              </v-col>
+              <v-col v-if="opponentPlayer" class="text-right">
+                <span :class="{ 'text-decoration-underline': !myTurn }">{{ opponentPlayer.user.username }}</span>
+                <v-icon v-if="opponentPlayer.symbol.toLowerCase() === 'cross'" color="red">
+                  mdi-close
+                </v-icon>
+                <v-icon v-if="opponentPlayer.symbol.toLowerCase() === 'circle'" color="blue">
+                  mdi-circle-outline
+                </v-icon>
+              </v-col>
+            </v-row>
+          </v-card-title>
+          <v-card-text style="height: 100%">
+            <div ref="gameWrapper">
+              <ResizeObserver @notify="onResize" />
+              <canvas
+                id="game"
+                ref="game"
+                style="border: 1px solid black;"
+                @click="placeSymbolEvent"
+              />
+            </div>
+            <v-row>
+              <v-col>
+                <Chat :user-colors="userColors" />
+              </v-col>
+            </v-row>
+          </v-card-text>
+        </v-card>
+      </v-col>
+    </v-row>
+  </div>
 </template>
 
 <script>
+import Chat from '@/components/Chat'
 import ResizeObserver from 'vue-resize/src/components/ResizeObserver'
 import gameState from '@/apollo/subscriptions/gameState'
 import placeSymbol from '@/apollo/mutations/placeSymbol'
@@ -47,6 +76,7 @@ import colors from 'vuetify/es5/util/colors'
 export default {
   name: 'Game',
   components: {
+    Chat,
     ResizeObserver
   },
   data: () => ({
@@ -58,9 +88,13 @@ export default {
     symbols: {},
     myPlayer: null,
     opponentPlayer: null,
-    myTurn: false
+    myTurn: false,
+    showWinDialog: false,
+    winner: null,
+    userColors: {}
   }),
   mounted () {
+    Object.assign(this.$data, this.$options.data.call(this)) // reset component data
     const that = this
 
     const gameStateObserver = this.$apollo.subscribe({
@@ -69,8 +103,13 @@ export default {
     gameStateObserver.subscribe({
       next (data) {
         const gameStateData = data.data.gameState
-        that.placeSymbol(gameStateData.x, gameStateData.y, gameStateData.symbol.toLowerCase())
-        that.myTurn = true
+        if (gameStateData.__typename === 'SymbolPlacement') {
+          that.placeSymbol(gameStateData.x, gameStateData.y, gameStateData.symbol.toLowerCase())
+          that.myTurn = true
+        } else if (gameStateData.__typename === 'GameWin') {
+          that.winner = gameStateData.player
+          that.showWinDialog = true
+        }
       }
     })
 
@@ -78,6 +117,10 @@ export default {
       query: activeGame
     }).then((data) => {
       const activeGame = data.data.activeGame
+      if (!activeGame) {
+        that.$router.push('/dashboard')
+        return
+      }
 
       for (const player of activeGame.players) {
         if (player.user.username === that.$store.state.account.username) {
@@ -85,7 +128,12 @@ export default {
         } else {
           that.opponentPlayer = player
         }
+
+        this.userColors[player.user.username] = player.symbol.toLowerCase() === 'circle' ? 'blue' : 'red'
       }
+
+      this.myTurn = that.myPlayer.user.username === that.$store.state.account.username &&
+        this.myPlayer.symbol.toLowerCase() === 'circle'
 
       for (const gameState of activeGame.gameStates) {
         this.placeSymbol(gameState.x, gameState.y, gameState.symbol.toLowerCase())
@@ -98,20 +146,29 @@ export default {
       }
     })
 
-    this.onResize()
+    window.addEventListener('resize', this.onResize)
+    this.$nextTick(() => this.onResize())
   },
   methods: {
     onResize () {
+      const root = document.getElementsByTagName('html')[0]
+      const scrollbarIsVisible = root.clientHeight < root.scrollHeight
+
       const style = window.getComputedStyle(this.$refs.gameWrapper, null)
       const paddingLeft = +style.paddingLeft.slice(0, -2)
       const paddingRight = +style.paddingRight.slice(0, -2)
       const paddingTop = +style.paddingTop.slice(0, -2)
       const paddingBottom = +style.paddingBottom.slice(0, -2)
       const parentWidth = +style.getPropertyValue('width').slice(0, -2) - paddingLeft - paddingRight
-      const parentHeight = +style.getPropertyValue('width').slice(0, -2) - paddingTop - paddingBottom
+      const parentHeight = +style.getPropertyValue('height').slice(0, -2) - paddingTop - paddingBottom
 
       this.$refs.game.width = parentWidth
-      this.$refs.game.height = parentHeight
+      if (!scrollbarIsVisible) {
+        this.$refs.game.height = parentHeight
+      } else {
+        const newHeight = parentHeight - (root.scrollHeight - root.clientHeight)
+        this.$refs.game.height = newHeight < 1 ? 1 : newHeight
+      }
 
       this.draw()
     },

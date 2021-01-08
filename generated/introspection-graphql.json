@@ -15,7 +15,19 @@
       },
       {
         "kind": "UNION",
-        "name": "GameResponseResult",
+        "name": "CancelGameResult",
+        "possibleTypes": [
+          {
+            "name": "GeneralStatus"
+          },
+          {
+            "name": "GameDoesntExist"
+          }
+        ]
+      },
+      {
+        "kind": "UNION",
+        "name": "AcceptGameResult",
         "possibleTypes": [
           {
             "name": "Game"
@@ -25,6 +37,42 @@
           },
           {
             "name": "GameDoesntExist"
+          }
+        ]
+      },
+      {
+        "kind": "UNION",
+        "name": "RejectGameResult",
+        "possibleTypes": [
+          {
+            "name": "GameRejected"
+          },
+          {
+            "name": "GameDoesntExist"
+          }
+        ]
+      },
+      {
+        "kind": "UNION",
+        "name": "GameRequestResult",
+        "possibleTypes": [
+          {
+            "name": "GameRequest"
+          },
+          {
+            "name": "GameRequestCancelled"
+          }
+        ]
+      },
+      {
+        "kind": "UNION",
+        "name": "GameState",
+        "possibleTypes": [
+          {
+            "name": "SymbolPlacement"
+          },
+          {
+            "name": "GameWin"
           }
         ]
       }

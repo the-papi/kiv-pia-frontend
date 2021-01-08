@@ -6,26 +6,51 @@ schema {
   subscription: Subscription
 }
 
-union GameResponseResult = Game | GameDoesntExist | PlayerAlreadyInGame
+union AcceptGameResult = Game | GameDoesntExist | PlayerAlreadyInGame
+
+union CancelGameResult = GameDoesntExist | GeneralStatus
+
+union GameRequestResult = GameRequest | GameRequestCancelled
+
+union GameState = GameWin | SymbolPlacement
 
 union RegisterResult = User | UsernameAlreadyUsed
 
+union RejectGameResult = GameDoesntExist | GameRejected
+
 type ChatMessage {
   from: User!
+  id: Int!
   message: String!
+  time: DateTime!
+}
+
+type FriendRequest {
+  foreigner: User!
+  id: Float!
 }
 
 type Game {
-  gameStates: [GameState!]!
+  datetime: DateTime!
+  gameStates: [SymbolPlacement!]!
   players: [Player!]!
+  winner: Player
 }
 
 type GameDoesntExist {
   message: String!
 }
 
+type GameRejected {
+  status: Boolean!
+}
+
 type GameRequest {
   from: User!
+  requestId: String!
+}
+
+type GameRequestCancelled {
   requestId: String!
 }
 
@@ -34,10 +59,13 @@ type GameResponse {
   status: GameResponseStatus!
 }
 
-type GameState {
-  symbol: GameSymbol!
-  x: Int!
-  y: Int!
+type GameWin {
+  player: Player!
+}
+
+type GeneralStatus {
+  message: String!
+  status: Boolean!
 }
 
 type JWT {
@@ -46,11 +74,15 @@ type JWT {
 }
 
 type Mutation {
-  acceptGameRequestAndStartGame(input: GameResponseInput!): GameResponseResult!
+  acceptFriendRequest(input: AcceptFriendRequestInput!): Boolean!
+  acceptGameRequestAndStartGame(input: GameResponseInput!): AcceptGameResult!
+  cancelGameRequest(input: CancelGameRequestInput!): CancelGameResult!
   login(input: LoginInput!): JWT
   placeSymbol(input: PlaceSymbolInput!): Boolean!
   register(input: RegisterInput!): RegisterResult!
+  rejectGameRequest(input: GameResponseInput!): RejectGameResult!
   sendChatMessage(input: ChatMessageInput!): Boolean!
+  sendFriendRequest(input: FriendRequestInput!): Boolean!
   sendGameRequest(input: GameRequestInput!): String
 }
 
@@ -72,15 +104,24 @@ type Profile {
 type Query {
   activeGame: Game
   activeUsers: [UserStatusUpdate!]
+  chatMessagesForActiveGame: [ChatMessage!]!
+  friendRequests: [FriendRequest!]!
+  gamesHistory: [Game!]
   me: Profile!
 }
 
 type Subscription {
-  gameRequest: GameRequest!
+  gameRequest: GameRequestResult!
   gameResponse: GameResponse!
   gameState: GameState!
   newChatMessage: ChatMessage!
   userStatus: UserStatusUpdate!
+}
+
+type SymbolPlacement {
+  symbol: GameSymbol!
+  x: Int!
+  y: Int!
 }
 
 type User {
@@ -112,8 +153,20 @@ enum UserStatus {
   Online
 }
 
+input AcceptFriendRequestInput {
+  requestId: Int!
+}
+
+input CancelGameRequestInput {
+  requestId: String!
+}
+
 input ChatMessageInput {
   message: String!
+}
+
+input FriendRequestInput {
+  foreignUserId: Int!
 }
 
 input GameRequestInput {
@@ -139,3 +192,7 @@ input RegisterInput {
   password: String!
   username: String!
 }
+
+
+"The javascript `Date` as string. Type represents date and time as the ISO Date string."
+scalar DateTime

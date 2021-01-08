@@ -7,8 +7,8 @@ const fragmentMatcher = new IntrospectionFragmentMatcher({
 
 export default function (context) {
   return {
-    httpEndpoint: 'http://localhost:4000',
-    wsEndpoint: 'ws://localhost:4000/graphql',
+    httpEndpoint: 'http://192.168.1.123:4000',
+    wsEndpoint: 'ws://192.168.1.123:4000/graphql',
     cache: new InMemoryCache({ fragmentMatcher })
   }
 }

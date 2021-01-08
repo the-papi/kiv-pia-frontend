@@ -23,6 +23,7 @@
         <v-spacer />
         <v-spacer />
         <v-spacer />
+        <FriendRequests />
         <v-spacer />
         {{ this.$store.state.account.username }}
         <v-menu transition="slide-y-transition" offset-y left>
@@ -44,31 +45,33 @@
         </v-menu>
       </v-app-bar>
     </div>
-    <v-row>
+    <v-row no-gutters>
       <v-col
-        cols="10"
+        cols="12"
         sm="9"
         md="10"
         lg="10"
         xl="10"
         style="background-image: url('https://cdn.vuetifyjs.com/images/parallax/material.jpg'); background-size: cover;"
       >
-        <v-container class="pa-16" fill-height>
+        <v-container class="pa-0 pa-sm-2 pa-md-16" fill-height>
           <v-row>
-            <v-col />
-            <v-col cols="12" sm="10" md="8" lg="7" xl="6">
+            <v-col class="pa-0 pd-sm-4" />
+            <v-col
+              cols="12"
+              sm="12"
+              md="10"
+              lg="9"
+              xl="7"
+              class="pa-0 pa-sm-4"
+            >
               <nuxt />
             </v-col>
-            <v-col />
+            <v-col class="pa-0 pd-sm-4" />
           </v-row>
         </v-container>
       </v-col>
       <v-col
-        cols="2"
-        sm="3"
-        md="2"
-        lg="2"
-        xl="2"
         class="pa-0"
       >
         <div class="d-flex" style="height: 100%">
@@ -84,9 +87,10 @@
 
 <script>
 import UserList from '@/components/UserList'
+import FriendRequests from '@/components/FriendRequests'
 
 export default {
-  components: { UserList },
+  components: { UserList, FriendRequests },
   middleware: ['auth'],
   data: () => ({
     users: []

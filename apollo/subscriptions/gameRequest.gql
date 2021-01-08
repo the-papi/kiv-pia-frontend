@@ -1,9 +1,14 @@
 subscription {
   gameRequest {
-    requestId
-    from {
-      id
-      username
+    ... on GameRequest {
+      requestId
+      from {
+        id
+        username
+      }
+    }
+    ... on GameRequestCancelled {
+      requestId
     }
   }
 }

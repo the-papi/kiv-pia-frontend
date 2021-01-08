@@ -1,0 +1,17 @@
+query {
+  gamesHistory {
+    players {
+      user {
+        username
+      }
+      symbol
+    }
+    winner {
+      user {
+        username
+      }
+      symbol
+    }
+    datetime
+  }
+}

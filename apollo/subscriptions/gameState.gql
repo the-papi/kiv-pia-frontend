@@ -1,7 +1,16 @@
 subscription {
   gameState {
-    x
-    y
-    symbol
+    ... on SymbolPlacement {
+      x
+      y
+      symbol
+    }
+    ... on GameWin {
+      player {
+        user {
+          username
+        }
+      }
+    }
   }
 }

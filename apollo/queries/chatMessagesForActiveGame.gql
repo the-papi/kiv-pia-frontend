@@ -1,0 +1,10 @@
+query {
+  chatMessagesForActiveGame {
+    id
+    from {
+      username
+    }
+    message
+    time
+  }
+}

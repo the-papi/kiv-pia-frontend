@@ -1,0 +1,9 @@
+query {
+  friendRequests {
+    id
+    foreigner {
+      id
+      username
+    }
+  }
+}

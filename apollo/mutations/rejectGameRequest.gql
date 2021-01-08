@@ -1,0 +1,10 @@
+mutation RejectGameRequest($requestId: String!) {
+  rejectGameRequest(input: { requestId: $requestId }) {
+    ... on GameRejected {
+      status
+    }
+    ... on GameDoesntExist {
+      message
+    }
+  }
+}
