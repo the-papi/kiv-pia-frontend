@@ -41,6 +41,9 @@
             <v-list-item to="/profile">
               <v-list-item-title>My profile</v-list-item-title>
             </v-list-item>
+            <v-list-item @click="logOut">
+              <v-list-item-title>Log out</v-list-item-title>
+            </v-list-item>
           </v-list>
         </v-menu>
       </v-app-bar>
@@ -68,6 +71,7 @@
               <nuxt />
             </v-col>
             <v-col class="pa-0 pd-sm-4" />
+            <Errors />
           </v-row>
         </v-container>
       </v-col>
@@ -88,12 +92,24 @@
 <script>
 import UserList from '@/components/UserList'
 import FriendRequests from '@/components/FriendRequests'
+import Errors from '@/components/Errors'
 
 export default {
-  components: { UserList, FriendRequests },
+  components: {
+    Errors,
+    UserList,
+    FriendRequests
+  },
   middleware: ['auth'],
   data: () => ({
     users: []
-  })
+  }),
+  methods: {
+    logOut () {
+      this.$store.commit('account/flush')
+      this.$apolloHelpers.onLogout()
+      this.$router.push('/')
+    }
+  }
 }
 </script>

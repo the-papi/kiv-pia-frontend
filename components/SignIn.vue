@@ -14,9 +14,9 @@
       </v-btn>
     </v-card-actions>
 
-    <v-snackbar v-model="invalidLogin" color="red">
-      Invalid login credentials
-    </v-snackbar>
+    <!--    <v-snackbar v-model="invalidLogin" color="red">-->
+    <!--      Invalid login credentials-->
+    <!--    </v-snackbar>-->
   </v-card>
 </template>
 
@@ -62,6 +62,7 @@ export default {
             await this.$router.push(this.redirectOnSuccess)
           }
         } else {
+          this.$errors.push('Invalid login credentials')
           this.invalidLogin = true
         }
         this.loading = false

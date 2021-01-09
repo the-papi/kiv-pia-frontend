@@ -6,6 +6,7 @@
           <v-col>
             <nuxt />
           </v-col>
+          <Errors />
         </v-row>
       </v-container>
     </v-main>
@@ -13,7 +14,11 @@
 </template>
 
 <script>
+
+import Errors from '@/components/Errors'
+
 export default {
+  components: { Errors },
   data () {
     return {
       clipped: false,
