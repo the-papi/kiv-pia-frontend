@@ -62,7 +62,7 @@ export default {
             await this.$router.push(this.redirectOnSuccess)
           }
         } else {
-          this.$errors.push('Invalid login credentials')
+          this.$snackbar.error('Invalid login credentials')
           this.invalidLogin = true
         }
         this.loading = false

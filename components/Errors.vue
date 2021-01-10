@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-snackbar v-model="displayError" :timeout="timeout" color="red">
+    <v-snackbar v-model="displayError" :timeout="timeout" :color="currentError.color">
       {{ currentError.text }}
     </v-snackbar>
   </div>
@@ -13,7 +13,8 @@ export default {
     displayError: false,
     displayedAtTime: null,
     currentError: {
-      text: null
+      text: null,
+      color: null
     },
     timeout: 5000,
     queueLength: 0,
@@ -27,7 +28,7 @@ export default {
     }
   },
   mounted () {
-    this.$errors.watch((err) => {
+    this.$snackbar.watch((err) => {
       this.errorQueue.push(err)
       this.queueLength++
     })
@@ -49,6 +50,22 @@ export default {
       this.displayError = true
       this.displayedAtTime = (new Date()).getTime()
       this.currentError.text = err.text
+      switch (err.severity) {
+        case 'error':
+          this.currentError.color = 'red'
+          break
+        case 'warning':
+          this.currentError.color = 'orange'
+          break
+        case 'info':
+          this.currentError.color = 'blue'
+          break
+        case 'success':
+          this.currentError.color = 'green'
+          break
+        default:
+          this.currentError.color = null
+      }
     }
   }
 }
