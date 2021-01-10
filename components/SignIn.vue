@@ -4,8 +4,15 @@
       Sign In
     </v-card-title>
     <v-card-text>
-      <v-text-field v-model.trim="username" label="Username" :rules="usernameRules" hide-details="auto" />
-      <v-text-field v-model="password" label="Password" type="password" :rules="passwordRules" hide-details="auto" />
+      <v-text-field v-model.trim="username" label="Username" :rules="usernameRules" hide-details="auto" @keypress.enter="signIn" />
+      <v-text-field
+        v-model="password"
+        label="Password"
+        type="password"
+        :rules="passwordRules"
+        hide-details="auto"
+        @keypress.enter="signIn"
+      />
     </v-card-text>
     <v-card-actions>
       <v-spacer />
@@ -21,7 +28,7 @@
 </template>
 
 <script>
-import signIn from '~/apollo/mutations/signIn'
+import signIn from '@/apollo/mutations/login'
 import me from '~/apollo/queries/me'
 
 export default {

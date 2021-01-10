@@ -15,6 +15,11 @@
             Dashborad
           </v-btn>
         </v-toolbar-items>
+        <v-toolbar-items>
+          <v-btn text to="/admin/users">
+            Users administration
+          </v-btn>
+        </v-toolbar-items>
         <v-spacer />
         <v-spacer />
         <v-spacer />

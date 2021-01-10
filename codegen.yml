@@ -1,4 +1,4 @@
-schema: "http://192.168.1.123:4000"
+schema: "http://localhost:4000"
 generates:
   ./generated/introspection-graphql.json:
     plugins:

@@ -14,7 +14,7 @@ union GameRequestResult = GameRequest | GameRequestCancelled
 
 union GameState = GameWin | SymbolPlacement
 
-union RegisterResult = User | UsernameAlreadyUsed
+union RegisterResult = EmailAlreadyUsed | PasswordTooWeak | User
 
 union RejectGameResult = GameDoesntExist | GameRejected
 
@@ -23,6 +23,10 @@ type ChatMessage {
   id: Int!
   message: String!
   time: DateTime!
+}
+
+type EmailAlreadyUsed {
+  message: String!
 }
 
 type FriendRequest {
@@ -81,9 +85,14 @@ type Mutation {
   placeSymbol(input: PlaceSymbolInput!): Boolean!
   register(input: RegisterInput!): RegisterResult!
   rejectGameRequest(input: GameResponseInput!): RejectGameResult!
+  resetPassword(input: ResetPasswordInput!): String
   sendChatMessage(input: ChatMessageInput!): Boolean!
   sendFriendRequest(input: FriendRequestInput!): Boolean!
   sendGameRequest(input: GameRequestInput!): String
+}
+
+type PasswordTooWeak {
+  message: String!
 }
 
 type Player {
@@ -108,6 +117,7 @@ type Query {
   friendRequests: [FriendRequest!]!
   gamesHistory: [Game!]
   me: Profile!
+  users: [User!]!
 }
 
 type Subscription {
@@ -125,6 +135,7 @@ type SymbolPlacement {
 }
 
 type User {
+  email: String!
   id: Float!
   username: String!
 }
@@ -132,10 +143,6 @@ type User {
 type UserStatusUpdate {
   status: UserStatus!
   user: User!
-}
-
-type UsernameAlreadyUsed {
-  message: String!
 }
 
 enum GameResponseStatus {
@@ -190,7 +197,10 @@ input PlaceSymbolInput {
 input RegisterInput {
   email: String!
   password: String!
-  username: String!
+}
+
+input ResetPasswordInput {
+  userId: Int!
 }
 
 

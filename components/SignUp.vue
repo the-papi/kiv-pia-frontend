@@ -5,9 +5,9 @@
         Sign Up
       </v-card-title>
       <v-card-text>
-        <v-text-field v-model.trim="username" label="Username" :rules="usernameRules" hide-details="auto" />
         <v-text-field v-model.trim="email" label="E-mail" type="email" :rules="emailRules" hide-details="auto" />
         <v-text-field v-model="password" label="Password" type="password" :rules="passwordRules" hide-details="auto" />
+        <v-progress-linear :color="passwordScore.color" :value="passwordScore.value" />
         <v-text-field v-model="passwordConfirm" label="Confirm password" type="password" :rules="passwordConfirmRules" hide-details="auto" />
       </v-card-text>
       <v-card-actions>
@@ -21,23 +21,18 @@
 </template>
 
 <script>
-import signUp from '~/apollo/mutations/signUp'
+import register from '@/apollo/mutations/register'
 
 export default {
   layout: 'login',
   data: () => ({
     valid: true,
-    username: '',
     password: '',
     passwordConfirm: '',
     email: '',
-    usernameRules: [
-      value => !!value || 'Required',
-      value => value.length >= 4 || 'Username must have at least 4 characters'
-    ],
     emailRules: [
       value => !!value || 'Required',
-      value => /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/.test(value) || 'E-mail must be valid'
+      value => (!!value && /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/.test(value)) || 'E-mail must be valid'
     ],
     passwordRules: [value => !!value || 'Required']
   }),
@@ -47,6 +42,34 @@ export default {
         value => !!value || 'Required',
         value => this.password === value || 'Passwords doesn\'t match'
       ]
+    },
+    passwordScore () {
+      if (/^(?=.*[A-Z].*[A-Z])(?=.*[!@#$&*])(?=.*[0-9].*[0-9])(?=.*[a-z].*[a-z].*[a-z]).{12,}$/.test(this.password)) {
+        return {
+          value: 100,
+          color: 'blue'
+        }
+      } else if (/^(?=.*[A-Z].*[A-Z])(?=.*[!@#$&*])(?=.*[0-9].*[0-9])(?=.*[a-z].*[a-z].*[a-z]).{8,}$/.test(this.password)) {
+        return {
+          value: 75,
+          color: 'green'
+        }
+      } else if (/^(?=.*[A-Z].*[A-Z])(?=.*[0-9].*[0-9]).{6,}$/.test(this.password)) {
+        return {
+          value: 50,
+          color: 'orange'
+        }
+      } else if (this.password.length > 5) {
+        return {
+          value: 25,
+          color: 'red'
+        }
+      }
+
+      return {
+        value: 0,
+        color: 'red'
+      }
     }
   },
   watch: {
@@ -55,11 +78,21 @@ export default {
   methods: {
     signUp () {
       this.$apollo.mutate({
-        mutation: signUp,
+        mutation: register,
         variables: {
-          username: this.username,
           email: this.email,
           password: this.password
+        }
+      }).then((data) => {
+        const registerData = data.data.register
+
+        if (registerData.__typename === 'EmailAlreadyUsed') {
+          this.$snackbar.error('This email is already used')
+        } else if (registerData.__typename === 'PasswordTooWeak') {
+          this.$snackbar.error('Password is too weak')
+        } else {
+          this.$refs.form.reset()
+          this.$snackbar.success('Registration completed successfully. You can sign in.')
         }
       })
     },

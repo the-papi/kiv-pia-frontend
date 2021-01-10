@@ -1,7 +1,6 @@
-mutation Register($username: String!, $email: String!, $password: String!) {
+mutation Register($email: String!, $password: String!) {
   register(
     input: {
-      username: $username
       email: $email
       password: $password
     }
@@ -9,7 +8,10 @@ mutation Register($username: String!, $email: String!, $password: String!) {
     ... on User {
       username
     }
-    ... on UsernameAlreadyUsed {
+    ... on EmailAlreadyUsed {
+      message
+    }
+    ... on PasswordTooWeak {
       message
     }
   }
