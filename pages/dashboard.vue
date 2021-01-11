@@ -57,9 +57,7 @@ export default {
       }
     ],
     games: [],
-    account: {
-      username: null
-    }
+    account: {}
   }),
   mounted () {
     const that = this
@@ -67,7 +65,7 @@ export default {
     this.$apollo.query({
       query: me
     }).then((data) => {
-      that.account.username = data.data.me.username
+      that.account = data.data.me
 
       that.$apollo.query({
         query: gamesHistory,

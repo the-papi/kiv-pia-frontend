@@ -4,5 +4,7 @@ query {
     username
     email
     admin
+    friendStatus
+    online
   }
 }

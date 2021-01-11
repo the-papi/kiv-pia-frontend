@@ -31,7 +31,6 @@ type EmailAlreadyUsed {
 
 type FriendRequest {
   foreigner: User!
-  id: Float!
 }
 
 type Game {
@@ -85,7 +84,9 @@ type Mutation {
   login(input: LoginInput!): JWT
   placeSymbol(input: PlaceSymbolInput!): Boolean!
   register(input: RegisterInput!): RegisterResult!
+  rejectFriendRequest(input: RejectFriendRequestInput!): Boolean!
   rejectGameRequest(input: GameResponseInput!): RejectGameResult!
+  removeFriend(input: RemoveFriendInput!): Boolean!
   resetPassword(input: ResetPasswordInput!): String
   sendChatMessage(input: ChatMessageInput!): Boolean!
   sendFriendRequest(input: FriendRequestInput!): Boolean!
@@ -127,6 +128,8 @@ type Subscription {
   gameResponse: GameResponse!
   gameState: GameState!
   newChatMessage: ChatMessage!
+  newFriendRequest: FriendRequest!
+  updatedFriendStatus: User!
   userStatus: UserStatusUpdate!
 }
 
@@ -139,13 +142,21 @@ type SymbolPlacement {
 type User {
   admin: Boolean!
   email: String!
+  friendStatus: FriendStatus
   id: Float!
+  online: Boolean
   username: String!
 }
 
 type UserStatusUpdate {
   status: UserStatus!
   user: User!
+}
+
+enum FriendStatus {
+  Friend
+  NotFriend
+  PendingRequest
 }
 
 enum GameResponseStatus {
@@ -164,7 +175,7 @@ enum UserStatus {
 }
 
 input AcceptFriendRequestInput {
-  requestId: Int!
+  userId: Int!
 }
 
 input CancelGameRequestInput {
@@ -205,6 +216,14 @@ input PlaceSymbolInput {
 input RegisterInput {
   email: String!
   password: String!
+}
+
+input RejectFriendRequestInput {
+  userId: Int!
+}
+
+input RemoveFriendInput {
+  friendId: Int!
 }
 
 input ResetPasswordInput {

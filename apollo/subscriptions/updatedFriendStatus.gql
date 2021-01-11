@@ -1,0 +1,6 @@
+subscription {
+  updatedFriendStatus {
+    id
+    friendStatus
+  }
+}

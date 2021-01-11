@@ -16,7 +16,7 @@
           </v-btn>
         </v-toolbar-items>
         <v-toolbar-items>
-          <v-btn text to="/admin/users">
+          <v-btn v-if="account.admin" text to="/admin/users">
             Users administration
           </v-btn>
         </v-toolbar-items>
@@ -28,7 +28,6 @@
         <v-spacer />
         <v-spacer />
         <v-spacer />
-        <FriendRequests />
         <v-spacer />
         {{ account.username }}
         <v-menu transition="slide-y-transition" offset-y left>
@@ -96,28 +95,24 @@
 
 <script>
 import UserList from '@/components/UserList'
-import FriendRequests from '@/components/FriendRequests'
 import Snackbar from '@/components/Snackbar'
 import me from '~/apollo/queries/me'
 
 export default {
   components: {
     Snackbar,
-    UserList,
-    FriendRequests
+    UserList
   },
   middleware: ['auth'],
   data: () => ({
     users: [],
-    account: {
-      username: null
-    }
+    account: {}
   }),
   mounted () {
     this.$apollo.query({
       query: me
     }).then((data) => {
-      this.account.username = data.data.me.username
+      this.account = data.data.me
     })
   },
   methods: {

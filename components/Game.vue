@@ -93,9 +93,7 @@ export default {
     showWinDialog: false,
     winner: null,
     userColors: {},
-    account: {
-      username: null
-    }
+    account: {}
   }),
   mounted () {
     Object.assign(this.$data, this.$options.data.call(this)) // reset component data
@@ -120,7 +118,7 @@ export default {
     this.$apollo.query({
       query: me
     }).then((data) => {
-      that.account.username = data.data.me.username
+      that.account = data.data.me
 
       that.$apollo.query({
         query: activeGame

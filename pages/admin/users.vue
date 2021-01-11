@@ -41,11 +41,11 @@
             </v-tooltip>
             <v-tooltip v-else bottom>
               <template v-slot:activator="{ on, attrs }">
-                <v-btn icon v-bind="attrs" v-on="on" @click="degradeToUser(item.id)">
+                <v-btn icon v-bind="attrs" v-on="on" @click="demoteToUser(item.id)">
                   <v-icon>mdi-account</v-icon>
                 </v-btn>
               </template>
-              <span>Degrade to user</span>
+              <span>Demote to user</span>
             </v-tooltip>
           </template>
         </v-data-table>
@@ -125,7 +125,7 @@ export default {
         }
       })
     },
-    degradeToUser (id) {
+    demoteToUser (id) {
       this.$apollo.mutate({
         mutation: changeUserRole,
         variables: {
@@ -135,7 +135,7 @@ export default {
       }).then((data) => {
         if (data.data.changeUserRole) {
           this.reloadUsers()
-          this.$snackbar.success('Successfully degraded to user')
+          this.$snackbar.success('Successfully demoted to user')
         }
       })
     }

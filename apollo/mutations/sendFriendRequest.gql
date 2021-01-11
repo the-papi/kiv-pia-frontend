@@ -1,0 +1,3 @@
+mutation SendFriendRequest($foreignUserId: Int!) {
+  sendFriendRequest(input: {foreignUserId: $foreignUserId})
+}

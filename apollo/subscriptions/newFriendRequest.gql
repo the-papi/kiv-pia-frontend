@@ -1,0 +1,7 @@
+subscription {
+  newFriendRequest {
+    foreigner {
+      id
+    }
+  }
+}

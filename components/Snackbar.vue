@@ -16,7 +16,7 @@ export default {
       text: null,
       color: null
     },
-    timeout: 5000,
+    timeout: 2000,
     queueLength: 0,
     errorQueue: []
   }),

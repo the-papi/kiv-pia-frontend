@@ -1,0 +1,3 @@
+mutation RejectFriendRequest($userId: Int!) {
+  rejectFriendRequest(input: {userId: $userId})
+}
