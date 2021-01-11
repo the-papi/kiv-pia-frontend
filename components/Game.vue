@@ -72,6 +72,7 @@ import gameState from '@/apollo/subscriptions/gameState'
 import placeSymbol from '@/apollo/mutations/placeSymbol'
 import activeGame from '@/apollo/queries/activeGame'
 import colors from 'vuetify/es5/util/colors'
+import me from '@/apollo/queries/me'
 
 export default {
   name: 'Game',
@@ -91,7 +92,10 @@ export default {
     myTurn: false,
     showWinDialog: false,
     winner: null,
-    userColors: {}
+    userColors: {},
+    account: {
+      username: null
+    }
   }),
   mounted () {
     Object.assign(this.$data, this.$options.data.call(this)) // reset component data
@@ -114,36 +118,42 @@ export default {
     })
 
     this.$apollo.query({
-      query: activeGame
+      query: me
     }).then((data) => {
-      const activeGame = data.data.activeGame
-      if (!activeGame) {
-        that.$router.push('/dashboard')
-        return
-      }
+      that.account.username = data.data.me.username
 
-      for (const player of activeGame.players) {
-        if (player.user.username === that.$store.state.account.username) {
-          that.myPlayer = player
-        } else {
-          that.opponentPlayer = player
+      that.$apollo.query({
+        query: activeGame
+      }).then((data) => {
+        const activeGame = data.data.activeGame
+        if (!activeGame) {
+          that.$router.push('/dashboard')
+          return
         }
 
-        this.userColors[player.user.username] = player.symbol.toLowerCase() === 'circle' ? 'blue' : 'red'
-      }
+        for (const player of activeGame.players) {
+          if (player.user.username === that.account.username) {
+            that.myPlayer = player
+          } else {
+            that.opponentPlayer = player
+          }
 
-      this.myTurn = that.myPlayer.user.username === that.$store.state.account.username &&
-        this.myPlayer.symbol.toLowerCase() === 'circle'
-
-      for (const gameState of activeGame.gameStates) {
-        this.placeSymbol(gameState.x, gameState.y, gameState.symbol.toLowerCase())
-      }
-      if (activeGame.gameStates.length) {
-        const lastGameState = activeGame.gameStates[activeGame.gameStates.length - 1]
-        if (lastGameState.symbol !== this.myPlayer.symbol) {
-          this.myTurn = true
+          this.userColors[player.user.username] = player.symbol.toLowerCase() === 'circle' ? 'blue' : 'red'
         }
-      }
+
+        this.myTurn = that.myPlayer.user.username === that.account.username &&
+          this.myPlayer.symbol.toLowerCase() === 'circle'
+
+        for (const gameState of activeGame.gameStates) {
+          this.placeSymbol(gameState.x, gameState.y, gameState.symbol.toLowerCase())
+        }
+        if (activeGame.gameStates.length) {
+          const lastGameState = activeGame.gameStates[activeGame.gameStates.length - 1]
+          if (lastGameState.symbol !== this.myPlayer.symbol) {
+            this.myTurn = true
+          }
+        }
+      })
     })
 
     window.addEventListener('resize', this.onResize)

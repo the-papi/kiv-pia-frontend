@@ -30,7 +30,7 @@
         <v-spacer />
         <FriendRequests />
         <v-spacer />
-        {{ this.$store.state.account.username }}
+        {{ account.username }}
         <v-menu transition="slide-y-transition" offset-y left>
           <template v-slot:activator="{ on, attrs }">
             <v-btn
@@ -76,7 +76,7 @@
               <nuxt />
             </v-col>
             <v-col class="pa-0 pd-sm-4" />
-            <Errors />
+            <Snackbar />
           </v-row>
         </v-container>
       </v-col>
@@ -97,21 +97,31 @@
 <script>
 import UserList from '@/components/UserList'
 import FriendRequests from '@/components/FriendRequests'
-import Errors from '@/components/Errors'
+import Snackbar from '@/components/Snackbar'
+import me from '~/apollo/queries/me'
 
 export default {
   components: {
-    Errors,
+    Snackbar,
     UserList,
     FriendRequests
   },
   middleware: ['auth'],
   data: () => ({
-    users: []
+    users: [],
+    account: {
+      username: null
+    }
   }),
+  mounted () {
+    this.$apollo.query({
+      query: me
+    }).then((data) => {
+      this.account.username = data.data.me.username
+    })
+  },
   methods: {
     logOut () {
-      this.$store.commit('account/flush')
       this.$apolloHelpers.onLogout()
       this.$router.push('/')
     }

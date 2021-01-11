@@ -1,0 +1,3 @@
+mutation ChangeUserRole($userId: Int!, $admin: Boolean!) {
+  changeUserRole(input: {userId: $userId, admin: $admin})
+}

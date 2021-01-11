@@ -81,6 +81,7 @@ type Mutation {
   acceptFriendRequest(input: AcceptFriendRequestInput!): Boolean!
   acceptGameRequestAndStartGame(input: GameResponseInput!): AcceptGameResult!
   cancelGameRequest(input: CancelGameRequestInput!): CancelGameResult!
+  changeUserRole(input: ChangeUserRoleInput!): String
   login(input: LoginInput!): JWT
   placeSymbol(input: PlaceSymbolInput!): Boolean!
   register(input: RegisterInput!): RegisterResult!
@@ -105,6 +106,7 @@ type PlayerAlreadyInGame {
 }
 
 type Profile {
+  admin: Boolean!
   email: String!
   id: Float!
   username: String!
@@ -135,6 +137,7 @@ type SymbolPlacement {
 }
 
 type User {
+  admin: Boolean!
   email: String!
   id: Float!
   username: String!
@@ -166,6 +169,11 @@ input AcceptFriendRequestInput {
 
 input CancelGameRequestInput {
   requestId: String!
+}
+
+input ChangeUserRoleInput {
+  admin: Boolean!
+  userId: Int!
 }
 
 input ChatMessageInput {

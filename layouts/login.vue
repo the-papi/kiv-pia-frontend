@@ -6,7 +6,7 @@
           <v-col>
             <nuxt />
           </v-col>
-          <Errors />
+          <Snackbar />
         </v-row>
       </v-container>
     </v-main>
@@ -15,10 +15,10 @@
 
 <script>
 
-import Errors from '@/components/Errors'
+import Snackbar from '@/components/Snackbar'
 
 export default {
-  components: { Errors },
+  components: { Snackbar },
   data () {
     return {
       clipped: false,

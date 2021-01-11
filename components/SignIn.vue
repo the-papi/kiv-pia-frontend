@@ -20,16 +20,11 @@
         Sign In
       </v-btn>
     </v-card-actions>
-
-    <!--    <v-snackbar v-model="invalidLogin" color="red">-->
-    <!--      Invalid login credentials-->
-    <!--    </v-snackbar>-->
   </v-card>
 </template>
 
 <script>
 import signIn from '@/apollo/mutations/login'
-import me from '~/apollo/queries/me'
 
 export default {
   layout: 'login',
@@ -59,12 +54,6 @@ export default {
       }).then(async (signIn) => {
         if (signIn.data.login) {
           await this.$apolloHelpers.onLogin(signIn.data.login.accessToken)
-          this.$apollo.query({
-            query: me
-          }).then((me) => {
-            this.$store.commit('account/set', me.data.me)
-          })
-
           if (this.redirectOnSuccess) {
             await this.$router.push(this.redirectOnSuccess)
           }

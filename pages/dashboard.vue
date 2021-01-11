@@ -29,6 +29,7 @@
 
 import gamesHistory from '@/apollo/queries/gamesHistory'
 import moment from 'moment'
+import me from '@/apollo/queries/me'
 
 export default {
   layout: 'default',
@@ -55,46 +56,55 @@ export default {
         value: 'result'
       }
     ],
-    games: []
+    games: [],
+    account: {
+      username: null
+    }
   }),
   mounted () {
     const that = this
 
     this.$apollo.query({
-      query: gamesHistory,
-      fetchPolicy: 'network-only'
+      query: me
     }).then((data) => {
-      const gamesHistory = data.data.gamesHistory
+      that.account.username = data.data.me.username
 
-      that.games = []
+      that.$apollo.query({
+        query: gamesHistory,
+        fetchPolicy: 'network-only'
+      }).then((data) => {
+        const gamesHistory = data.data.gamesHistory
 
-      for (const game of gamesHistory) {
-        const datetime = moment(game.datetime)
+        that.games = []
 
-        let leftPlayer = null
-        let rightPlayer = null
+        for (const game of gamesHistory) {
+          const datetime = moment(game.datetime)
 
-        if (game.players[0].user.username === this.$store.state.account.username) {
-          leftPlayer = game.players[0]
-          rightPlayer = game.players[1]
-        } else {
-          leftPlayer = game.players[1]
-          rightPlayer = game.players[0]
+          let leftPlayer = null
+          let rightPlayer = null
+
+          if (game.players[0].user.username === that.account.username) {
+            leftPlayer = game.players[0]
+            rightPlayer = game.players[1]
+          } else {
+            leftPlayer = game.players[1]
+            rightPlayer = game.players[0]
+          }
+
+          let result = '?'
+          if (game.winner) {
+            result = leftPlayer.user.username === game.winner.user.username ? 'Win' : 'Loss'
+          }
+
+          that.games.push({
+            opponent: `${rightPlayer.user.username}`,
+            date: datetime.format('LL'),
+            time: datetime.format('HH:mm'),
+            symbol: leftPlayer.symbol,
+            result
+          })
         }
-
-        let result = '?'
-        if (game.winner) {
-          result = leftPlayer.user.username === game.winner.user.username ? 'Win' : 'Loss'
-        }
-
-        that.games.push({
-          opponent: `${rightPlayer.user.username}`,
-          date: datetime.format('LL'),
-          time: datetime.format('HH:mm'),
-          symbol: leftPlayer.symbol,
-          result
-        })
-      }
+      })
     })
   }
 }
