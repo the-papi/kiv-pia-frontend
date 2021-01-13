@@ -25,7 +25,7 @@
             </v-list-item>
           </template>
           <v-list>
-            <v-list-item dense @click="inviteToTheGame(user.id, user.username)">
+            <v-list-item dense @click="sendGameRequest(user.id, user.username)">
               <v-list-item-icon>
                 <v-icon>
                   mdi-gamepad-variant
@@ -68,7 +68,7 @@
             </v-list-item>
           </template>
           <v-list>
-            <v-list-item dense @click="inviteToTheGame(user.id, user.username)">
+            <v-list-item dense @click="sendGameRequest(user.id, user.username)">
               <v-list-item-icon>
                 <v-icon>
                   mdi-gamepad-variant
@@ -119,7 +119,7 @@
             </v-list-item>
           </template>
           <v-list>
-            <v-list-item dense @click="inviteToTheGame(user.id, user.username)">
+            <v-list-item dense @click="sendGameRequest(user.id, user.username)">
               <v-list-item-icon>
                 <v-icon>
                   mdi-gamepad-variant
@@ -214,6 +214,33 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+    <v-dialog v-model="showSendGameRequestDialog" persistent max-width="420">
+      <v-card>
+        <v-card-title class="headline">
+          Send game request
+        </v-card-title>
+        <v-card-text>
+          <v-select
+            v-model="selectedBoardSize"
+            :items="boardSizeItems"
+            item-text="text"
+            item-value="value"
+            label="Choose board size"
+            persistent-hint
+            return-object
+          />
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer />
+          <v-btn color="error" text @click="showSendGameRequestDialog = false">
+            Cancel
+          </v-btn>
+          <v-btn color="primary" text @click="showSendGameRequestDialog = false; inviteToTheGame(sendGameRequestDialogData.userId, sendGameRequestDialogData.username, selectedBoardSize.value)">
+            Send
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
@@ -251,6 +278,25 @@ export default {
       requestId: null,
       rejected: false
     },
+    showSendGameRequestDialog: false,
+    sendGameRequestDialogData: {
+      userId: null,
+      username: null
+    },
+    selectedBoardSize: {
+      text: '7x7',
+      value: 'Seven'
+    },
+    boardSizeItems: [{
+      text: '5x5',
+      value: 'Five'
+    }, {
+      text: '7x7',
+      value: 'Seven'
+    }, {
+      text: '11x11',
+      value: 'Eleven'
+    }],
     account: {}
   }),
   computed: {
@@ -431,14 +477,20 @@ export default {
           friendId: userId
         }
       }).then((data) => {
-        console.log(data)
+        this.users[userId].friendStatus = 'NotFriend'
       })
     },
-    inviteToTheGame (userId, username) {
+    sendGameRequest (userId, username) {
+      this.sendGameRequestDialogData.userId = userId
+      this.sendGameRequestDialogData.username = username
+      this.showSendGameRequestDialog = true
+    },
+    inviteToTheGame (userId, username, boardSize) {
       this.$apollo.mutate({
         mutation: sendGameRequest,
         variables: {
-          userId
+          userId,
+          boardSize
         }
       }).then((value) => {
         const requestId = value.data.sendGameRequest

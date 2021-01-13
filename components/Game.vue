@@ -44,7 +44,7 @@
             </v-row>
           </v-card-title>
           <v-card-text style="height: 100%">
-            <div ref="gameWrapper">
+            <div ref="gameWrapper" class="text-center">
               <ResizeObserver @notify="onResize" />
               <canvas
                 id="game"
@@ -93,7 +93,8 @@ export default {
     showWinDialog: false,
     winner: null,
     userColors: {},
-    account: {}
+    account: {},
+    boardSize: 1
   }),
   mounted () {
     Object.assign(this.$data, this.$options.data.call(this)) // reset component data
@@ -129,6 +130,14 @@ export default {
           return
         }
 
+        if (activeGame.boardSize === 'Five') {
+          that.boardSize = 5
+        } else if (activeGame.boardSize === 'Seven') {
+          that.boardSize = 7
+        } else if (activeGame.boardSize === 'Eleven') {
+          that.boardSize = 11
+        }
+
         for (const player of activeGame.players) {
           if (player.user.username === that.account.username) {
             that.myPlayer = player
@@ -151,11 +160,11 @@ export default {
             this.myTurn = true
           }
         }
+
+        window.addEventListener('resize', that.onResize)
+        this.$nextTick(() => that.onResize())
       })
     })
-
-    window.addEventListener('resize', this.onResize)
-    this.$nextTick(() => this.onResize())
   },
   methods: {
     onResize () {
@@ -171,11 +180,19 @@ export default {
       const parentHeight = +style.getPropertyValue('height').slice(0, -2) - paddingTop - paddingBottom
 
       this.$refs.game.width = parentWidth
+      if (this.$refs.game.width > this.squareSize * this.boardSize) {
+        this.$refs.game.width = this.squareSize * this.boardSize
+      }
+
       if (!scrollbarIsVisible) {
         this.$refs.game.height = parentHeight
       } else {
         const newHeight = parentHeight - (root.scrollHeight - root.clientHeight)
         this.$refs.game.height = newHeight < 1 ? 1 : newHeight
+      }
+
+      if (this.$refs.game.height > this.squareSize * this.boardSize) {
+        this.$refs.game.height = this.squareSize * this.boardSize
       }
 
       this.draw()
@@ -185,7 +202,7 @@ export default {
       const ctx = canvas.getContext('2d')
       ctx.imageSmoothingEnabled = false
       ctx.clearRect(0, 0, canvas.width, canvas.height)
-      this.drawMatrix(ctx, canvas.width, canvas.height)
+      this.drawMatrix(ctx, this.boardSize * this.squareSize, this.boardSize * this.squareSize)
       this.drawSymbols(ctx, canvas.width, canvas.height)
       // this.drawDebug(ctx, canvas.width, canvas.height)
     },

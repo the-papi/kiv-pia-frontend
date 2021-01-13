@@ -12,7 +12,7 @@
         <v-spacer />
         <v-toolbar-items>
           <v-btn text to="/dashboard">
-            Dashborad
+            Games history
           </v-btn>
         </v-toolbar-items>
         <v-toolbar-items>

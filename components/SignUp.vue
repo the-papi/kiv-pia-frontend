@@ -34,7 +34,7 @@ export default {
       value => !!value || 'Required',
       value => (!!value && /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/.test(value)) || 'E-mail must be valid'
     ],
-    passwordRules: [value => !!value || 'Required']
+    passwordRules: [value => !!value || 'Required', value => value.length > 5 || 'Password needs to have at least 6 characters']
   }),
   computed: {
     passwordConfirmRules () {
@@ -59,7 +59,7 @@ export default {
           value: 50,
           color: 'orange'
         }
-      } else if (this.password.length > 5) {
+      } else if (this.password && this.password.length > 5) {
         return {
           value: 25,
           color: 'red'

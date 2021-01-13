@@ -34,6 +34,7 @@ type FriendRequest {
 }
 
 type Game {
+  boardSize: BoardSize!
   datetime: DateTime!
   gameStates: [SymbolPlacement!]!
   players: [Player!]!
@@ -80,6 +81,7 @@ type Mutation {
   acceptFriendRequest(input: AcceptFriendRequestInput!): Boolean!
   acceptGameRequestAndStartGame(input: GameResponseInput!): AcceptGameResult!
   cancelGameRequest(input: CancelGameRequestInput!): CancelGameResult!
+  changePassword(input: ChangePasswordInput!): Boolean
   changeUserRole(input: ChangeUserRoleInput!): String
   login(input: LoginInput!): JWT
   placeSymbol(input: PlaceSymbolInput!): Boolean!
@@ -153,6 +155,12 @@ type UserStatusUpdate {
   user: User!
 }
 
+enum BoardSize {
+  Eleven
+  Five
+  Seven
+}
+
 enum FriendStatus {
   Friend
   NotFriend
@@ -182,6 +190,11 @@ input CancelGameRequestInput {
   requestId: String!
 }
 
+input ChangePasswordInput {
+  newPassword: String!
+  oldPassword: String!
+}
+
 input ChangeUserRoleInput {
   admin: Boolean!
   userId: Int!
@@ -196,6 +209,7 @@ input FriendRequestInput {
 }
 
 input GameRequestInput {
+  boardSize: BoardSize = Seven
   userId: Int!
 }
 

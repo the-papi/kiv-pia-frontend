@@ -7,6 +7,7 @@ query {
       }
       symbol
     }
+    boardSize
     gameStates {
       x
       y
