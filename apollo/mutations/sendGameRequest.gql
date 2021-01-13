@@ -1,3 +1,11 @@
 mutation SendGameRequest($userId: Int!, $boardSize: BoardSize!) {
-  sendGameRequest(input: {userId: $userId, boardSize: $boardSize})
+  sendGameRequest(input: {userId: $userId, boardSize: $boardSize}) {
+    ... on GeneralStatus {
+      status
+      message
+    }
+    ... on PlayerAlreadyInGame {
+      message
+    }
+  }
 }

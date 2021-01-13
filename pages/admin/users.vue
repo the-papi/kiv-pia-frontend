@@ -23,9 +23,14 @@
           <template v-slot:item.resetPassword="{ item }">
             <v-tooltip bottom>
               <template v-slot:activator="{ on, attrs }">
-                <v-btn icon v-bind="attrs" v-on="on" @click="resetPassword(item.id)">
-                  <v-icon>mdi-lock-reset</v-icon>
-                </v-btn>
+                <v-row align="center" justify="center">
+                  <v-col class="d-flex">
+                    <span class="d-flex d-sm-none mt-auto mb-auto">Reset password</span>
+                    <v-btn icon v-bind="attrs" :disabled="account.username === item.username" v-on="on" @click="resetPassword(item.id)">
+                      <v-icon>mdi-lock-reset</v-icon>
+                    </v-btn>
+                  </v-col>
+                </v-row>
               </template>
               <span>Reset password</span>
             </v-tooltip>
@@ -33,7 +38,8 @@
           <template v-slot:item.changeUserRole="{ item }">
             <v-tooltip v-if="!item.admin" bottom>
               <template v-slot:activator="{ on, attrs }">
-                <v-btn icon v-bind="attrs" v-on="on" @click="promoteToAdmin(item.id)">
+                <span class="d-sm-none mt-auto mb-auto">Promote to admin</span>
+                <v-btn icon v-bind="attrs" :disabled="account.username === item.username" v-on="on" @click="promoteToAdmin(item.id)">
                   <v-icon>mdi-account-cog</v-icon>
                 </v-btn>
               </template>
@@ -41,7 +47,8 @@
             </v-tooltip>
             <v-tooltip v-else bottom>
               <template v-slot:activator="{ on, attrs }">
-                <v-btn icon v-bind="attrs" v-on="on" @click="demoteToUser(item.id)">
+                <span class="d-sm-none mt-auto mb-auto">Demote to user</span>
+                <v-btn icon v-bind="attrs" :disabled="account.username === item.username" v-on="on" @click="demoteToUser(item.id)">
                   <v-icon>mdi-account</v-icon>
                 </v-btn>
               </template>
@@ -59,6 +66,7 @@
 import users from '@/apollo/queries/users'
 import resetPassword from '@/apollo/mutations/resetPassword'
 import changeUserRole from '@/apollo/mutations/changeUserRole'
+import me from '@/apollo/queries/me'
 
 export default {
   layout: 'default',
@@ -85,9 +93,16 @@ export default {
         width: '1%'
       }
     ],
-    users: []
+    users: [],
+    account: {}
   }),
   mounted () {
+    this.$apollo.query({
+      query: me
+    }).then((data) => {
+      this.account = data.data.me
+    })
+
     this.reloadUsers()
   },
   methods: {
@@ -107,7 +122,12 @@ export default {
         }
       }).then((data) => {
         this.newPassword = data.data.resetPassword
-        this.showNewPassword = true
+
+        if (this.newPassword) {
+          this.showNewPassword = true
+        } else {
+          this.$snackbar.error('You can\'t reset your password')
+        }
         this.reloadUsers()
       })
     },
@@ -119,9 +139,11 @@ export default {
           admin: true
         }
       }).then((data) => {
+        this.reloadUsers()
         if (data.data.changeUserRole) {
-          this.reloadUsers()
           this.$snackbar.success('Successfully promoted to admin')
+        } else {
+          this.$snackbar.error('You can\'t promote yourself')
         }
       })
     },
@@ -133,9 +155,11 @@ export default {
           admin: false
         }
       }).then((data) => {
+        this.reloadUsers()
         if (data.data.changeUserRole) {
-          this.reloadUsers()
           this.$snackbar.success('Successfully demoted to user')
+        } else {
+          this.$snackbar.error('You can\'t demote yourself')
         }
       })
     }

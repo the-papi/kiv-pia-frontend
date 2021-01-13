@@ -18,10 +18,14 @@ union RegisterResult = EmailAlreadyUsed | PasswordTooWeak | User
 
 union RejectGameResult = GameDoesntExist | GameRejected
 
+union SendGameRequestResult = GeneralStatus | PlayerAlreadyInGame
+
 type ChatMessage {
+  "Sender of the chat message"
   from: User!
   id: Int!
   message: String!
+  "Time the message was sent"
   time: DateTime!
 }
 
@@ -30,69 +34,99 @@ type EmailAlreadyUsed {
 }
 
 type FriendRequest {
+  "Receiver of the friend request"
   foreigner: User!
 }
 
 type Game {
+  "Board size (only one side - board is always square)"
   boardSize: BoardSize!
+  "Time of game creation"
   datetime: DateTime!
+  "List of all game states"
   gameStates: [SymbolPlacement!]!
+  "List of all players (currently it should be list of 2 players)"
   players: [Player!]!
+  "Winner of the game (null if game hasn't ended)"
   winner: Player
 }
 
+"Error that is returned when the game doesn't exist"
 type GameDoesntExist {
   message: String!
 }
 
+"Error that is returned when the player rejected game request"
 type GameRejected {
   status: Boolean!
 }
 
 type GameRequest {
+  "Sender of the game request"
   from: User!
+  "Request ID (random string) that is needed for game request acceptation"
   requestId: String!
 }
 
+"This object is sent when sender cancels game request"
 type GameRequestCancelled {
   requestId: String!
 }
 
+"This object is sent when user accepts or rejects game request"
 type GameResponse {
   requestId: String!
   status: GameResponseStatus!
 }
 
+"This object is used to announce the winner"
 type GameWin {
   player: Player!
 }
 
+"General status object that can be used for simple operations that has boolean result"
 type GeneralStatus {
   message: String!
   status: Boolean!
 }
 
+"Wrapper object for JWT access and refresh token"
 type JWT {
   accessToken: String
   refreshToken: String
 }
 
 type Mutation {
+  "Accept friend request sent by another user"
   acceptFriendRequest(input: AcceptFriendRequestInput!): Boolean!
+  "Accept game request and start the game"
   acceptGameRequestAndStartGame(input: GameResponseInput!): AcceptGameResult!
+  "Cancels sent game request"
   cancelGameRequest(input: CancelGameRequestInput!): CancelGameResult!
+  "Changes password for the currently logged in user"
   changePassword(input: ChangePasswordInput!): Boolean
+  "Changes user role to admin or casual user"
   changeUserRole(input: ChangeUserRoleInput!): String
+  "Login user by given credentials"
   login(input: LoginInput!): JWT
+  "Place assigned symbol at the given position"
   placeSymbol(input: PlaceSymbolInput!): Boolean!
+  "Registers new user"
   register(input: RegisterInput!): RegisterResult!
+  "Reject friend request sent by another user"
   rejectFriendRequest(input: RejectFriendRequestInput!): Boolean!
+  "Rejects the game request"
   rejectGameRequest(input: GameResponseInput!): RejectGameResult!
+  "Remove friend from friend list"
   removeFriend(input: RemoveFriendInput!): Boolean!
+  "Resets password to the given user"
   resetPassword(input: ResetPasswordInput!): String
+  "Sends chat message to the game chat"
   sendChatMessage(input: ChatMessageInput!): Boolean!
+  "Send friend request to another user"
   sendFriendRequest(input: FriendRequestInput!): Boolean!
-  sendGameRequest(input: GameRequestInput!): String
+  "Send game request to another player"
+  sendGameRequest(input: GameRequestInput!): SendGameRequestResult
 }
 
 type PasswordTooWeak {
@@ -104,10 +138,12 @@ type Player {
   user: User!
 }
 
+"Error that is returned when the player is already in another game"
 type PlayerAlreadyInGame {
   message: String!
 }
 
+"This object is used for telling user it's own personal information"
 type Profile {
   admin: Boolean!
   email: String!
@@ -116,22 +152,36 @@ type Profile {
 }
 
 type Query {
+  "Returns active game for currently logged in user"
   activeGame: Game
+  "Returns all online users"
   activeUsers: [UserStatusUpdate!]
+  "Returns chat messages for the active game"
   chatMessagesForActiveGame: [ChatMessage!]!
+  "Get all incoming friend requests"
   friendRequests: [FriendRequest!]!
+  "Returns list of all finished games"
   gamesHistory: [Game!]
+  "Can be used to inspect user profile"
   me: Profile!
+  "Returns list of all users"
   users: [User!]!
 }
 
 type Subscription {
+  "You can receive game requests through this subscription"
   gameRequest: GameRequestResult!
+  "Answer to the game request"
   gameResponse: GameResponse!
+  "Sends new game states"
   gameState: GameState!
+  "This subscription sends new chat messages in the active game"
   newChatMessage: ChatMessage!
+  "This subscription sends friend requests"
   newFriendRequest: FriendRequest!
+  "This subscriptions sends updates about friend status"
   updatedFriendStatus: User!
+  "Returns object when user changed it's status (online/offline)"
   userStatus: UserStatusUpdate!
 }
 

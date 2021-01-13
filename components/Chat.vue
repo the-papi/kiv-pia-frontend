@@ -89,6 +89,10 @@ export default {
       })
     },
     sendMessage () {
+      if (!this.newMessage) {
+        return
+      }
+
       this.$apollo.mutate({
         mutation: sendChatMessage,
         variables: {

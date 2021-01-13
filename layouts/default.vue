@@ -6,18 +6,16 @@
         dense
         dark
       >
-        <v-toolbar-title>
-          Tic Tac Toe
-        </v-toolbar-title>
-        <v-spacer />
         <v-toolbar-items>
           <v-btn text to="/dashboard">
-            Games history
+            <v-icon>mdi-gamepad-square</v-icon>
+            <span class="ml-2 d-none d-sm-flex">Games history</span>
           </v-btn>
         </v-toolbar-items>
         <v-toolbar-items>
           <v-btn v-if="account.admin" text to="/admin/users">
-            Users administration
+            <v-icon>mdi-cog</v-icon>
+            <span class="ml-2 d-none d-sm-flex">Users administration</span>
           </v-btn>
         </v-toolbar-items>
         <v-spacer />
@@ -55,14 +53,14 @@
     <v-row no-gutters>
       <v-col
         cols="12"
-        sm="9"
-        md="10"
-        lg="10"
+        sm="12"
+        md="9"
+        lg="9"
         xl="10"
         style="background-image: url('https://cdn.vuetifyjs.com/images/parallax/material.jpg'); background-size: cover;"
       >
         <v-container class="pa-0 pa-sm-2 pa-md-16" fill-height>
-          <v-row>
+          <v-row class="ma-0 pa-0">
             <v-col class="pa-0 pd-sm-4" />
             <v-col
               cols="12"
@@ -80,6 +78,11 @@
         </v-container>
       </v-col>
       <v-col
+        cols="0"
+        sm="0"
+        md="3"
+        lg="3"
+        xl="2"
         class="pa-0"
       >
         <div class="d-flex" style="height: 100%">

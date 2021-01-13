@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-list>
+    <v-list :style="style">
       <v-subheader v-show="Object.keys(onlineFriends).length">
         Online friends
       </v-subheader>
@@ -300,6 +300,15 @@ export default {
     account: {}
   }),
   computed: {
+    style () {
+      switch (this.$vuetify.breakpoint.name) {
+        case 'md':
+        case 'lg':
+        case 'xl':
+          return 'max-height: calc(100vh - 48px); overflow-y: auto;'
+      }
+      return ''
+    },
     onlineFriends () {
       const onlineFriends = {}
       for (const userId in this.users) {
@@ -493,12 +502,22 @@ export default {
           boardSize
         }
       }).then((value) => {
-        const requestId = value.data.sendGameRequest
-        this.requestIds[requestId] = userId
-        this.waitingDialogData.username = username
-        this.waitingDialogData.requestId = requestId
-        this.waitingDialogData.rejected = false
-        this.showWaitingDialog = true
+        const sendGameRequestData = value.data.sendGameRequest
+
+        if (sendGameRequestData.__typename === 'GeneralStatus') {
+          if (sendGameRequestData.status) {
+            const requestId = sendGameRequestData.message
+            this.requestIds[requestId] = userId
+            this.waitingDialogData.username = username
+            this.waitingDialogData.requestId = requestId
+            this.waitingDialogData.rejected = false
+            this.showWaitingDialog = true
+          } else {
+            this.$snackbar.error('General error. Try it again later.')
+          }
+        } else if (sendGameRequestData.__typename === 'PlayerAlreadyInGame') {
+          this.$snackbar.error(sendGameRequestData.message)
+        }
       })
     },
     acceptGameRequest (requestId) {

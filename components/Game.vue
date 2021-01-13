@@ -1,7 +1,7 @@
 <template>
   <div>
-    <v-row>
-      <v-col>
+    <v-row class="ma-0 pa-0">
+      <v-col class="pa-0">
         <v-dialog v-if="winner" v-model="showWinDialog" persistent max-width="290">
           <v-card>
             <v-card-title class="headline">
@@ -168,32 +168,8 @@ export default {
   },
   methods: {
     onResize () {
-      const root = document.getElementsByTagName('html')[0]
-      const scrollbarIsVisible = root.clientHeight < root.scrollHeight
-
-      const style = window.getComputedStyle(this.$refs.gameWrapper, null)
-      const paddingLeft = +style.paddingLeft.slice(0, -2)
-      const paddingRight = +style.paddingRight.slice(0, -2)
-      const paddingTop = +style.paddingTop.slice(0, -2)
-      const paddingBottom = +style.paddingBottom.slice(0, -2)
-      const parentWidth = +style.getPropertyValue('width').slice(0, -2) - paddingLeft - paddingRight
-      const parentHeight = +style.getPropertyValue('height').slice(0, -2) - paddingTop - paddingBottom
-
-      this.$refs.game.width = parentWidth
-      if (this.$refs.game.width > this.squareSize * this.boardSize) {
-        this.$refs.game.width = this.squareSize * this.boardSize
-      }
-
-      if (!scrollbarIsVisible) {
-        this.$refs.game.height = parentHeight
-      } else {
-        const newHeight = parentHeight - (root.scrollHeight - root.clientHeight)
-        this.$refs.game.height = newHeight < 1 ? 1 : newHeight
-      }
-
-      if (this.$refs.game.height > this.squareSize * this.boardSize) {
-        this.$refs.game.height = this.squareSize * this.boardSize
-      }
+      this.$refs.game.width = this.squareSize * this.boardSize
+      this.$refs.game.height = this.squareSize * this.boardSize
 
       this.draw()
     },

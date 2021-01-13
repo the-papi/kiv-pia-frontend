@@ -1,10 +1,10 @@
 <template>
   <v-form ref="form" v-model="valid">
     <v-card>
-      <v-row>
+      <v-row class="ma-0 pa-0">
         <v-col>
           <v-container fill-height>
-            <v-icon size="200px" class="ml-auto mr-auto">
+            <v-icon size="150px" class="ml-auto mr-auto">
               mdi-account
             </v-icon>
           </v-container>
