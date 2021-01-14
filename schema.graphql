@@ -12,7 +12,7 @@ union CancelGameResult = GameDoesntExist | GeneralStatus
 
 union GameRequestResult = GameRequest | GameRequestCancelled
 
-union GameState = GameWin | SymbolPlacement
+union GameState = GameSurrender | GameWin | SymbolPlacement
 
 union RegisterResult = EmailAlreadyUsed | PasswordTooWeak | User
 
@@ -79,6 +79,11 @@ type GameResponse {
   status: GameResponseStatus!
 }
 
+"This object is used to give up the game"
+type GameSurrender {
+  player: Player!
+}
+
 "This object is used to announce the winner"
 type GameWin {
   player: Player!
@@ -106,7 +111,7 @@ type Mutation {
   "Changes password for the currently logged in user"
   changePassword(input: ChangePasswordInput!): Boolean
   "Changes user role to admin or casual user"
-  changeUserRole(input: ChangeUserRoleInput!): String
+  changeUserRole(input: ChangeUserRoleInput!): Boolean
   "Login user by given credentials"
   login(input: LoginInput!): JWT
   "Place assigned symbol at the given position"
@@ -127,6 +132,8 @@ type Mutation {
   sendFriendRequest(input: FriendRequestInput!): Boolean!
   "Send game request to another player"
   sendGameRequest(input: GameRequestInput!): SendGameRequestResult
+  "Surrender the game"
+  surrender: Boolean!
 }
 
 type PasswordTooWeak {

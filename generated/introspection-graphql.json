@@ -18,6 +18,18 @@
       },
       {
         "kind": "UNION",
+        "name": "SendGameRequestResult",
+        "possibleTypes": [
+          {
+            "name": "PlayerAlreadyInGame"
+          },
+          {
+            "name": "GeneralStatus"
+          }
+        ]
+      },
+      {
+        "kind": "UNION",
         "name": "CancelGameResult",
         "possibleTypes": [
           {
@@ -76,6 +88,9 @@
           },
           {
             "name": "GameWin"
+          },
+          {
+            "name": "GameSurrender"
           }
         ]
       }

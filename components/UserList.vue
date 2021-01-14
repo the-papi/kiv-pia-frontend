@@ -356,12 +356,14 @@ export default {
     const that = this
 
     this.$apollo.query({
-      query: me
+      query: me,
+      fetchPolicy: 'no-cache'
     }).then((data) => {
       that.account = data.data.me
 
       that.$apollo.query({
-        query: users
+        query: users,
+        fetchPolicy: 'no-cache'
       }).then((data) => {
         for (const user of data.data.users) {
           if (user.username === that.account.username) {

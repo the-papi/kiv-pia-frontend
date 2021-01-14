@@ -68,7 +68,8 @@ export default {
     })
 
     this.$apollo.query({
-      query: chatMessagesForActiveGame
+      query: chatMessagesForActiveGame,
+      fetchPolicy: 'no-cache'
     }).then((data) => {
       const chatMessages = data.data.chatMessagesForActiveGame
       for (const chatMessage of chatMessages) {

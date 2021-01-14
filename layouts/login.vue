@@ -36,6 +36,11 @@ export default {
       rightDrawer: false,
       title: 'Vuetify.js'
     }
+  },
+  mounted () {
+    if (this.$apolloHelpers.getToken()) {
+      this.$router.push('/dashboard')
+    }
   }
 }
 </script>

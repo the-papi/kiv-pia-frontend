@@ -99,6 +99,7 @@
 <script>
 import UserList from '@/components/UserList'
 import Snackbar from '@/components/Snackbar'
+import activeGame from '@/apollo/queries/activeGame'
 import me from '~/apollo/queries/me'
 
 export default {
@@ -113,9 +114,19 @@ export default {
   }),
   mounted () {
     this.$apollo.query({
-      query: me
+      query: me,
+      fetchPolicy: 'no-cache'
     }).then((data) => {
       this.account = data.data.me
+    })
+
+    this.$apollo.query({
+      query: activeGame,
+      fetchPolicy: 'no-cache'
+    }).then((data) => {
+      if (data.data.activeGame) {
+        this.$nextTick(() => this.$router.push('/game'))
+      }
     })
   },
   methods: {

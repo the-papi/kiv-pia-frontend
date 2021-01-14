@@ -12,5 +12,12 @@ subscription {
         }
       }
     }
+    ... on GameSurrender {
+      player {
+        user {
+          username
+        }
+      }
+    }
   }
 }

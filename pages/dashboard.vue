@@ -63,13 +63,14 @@ export default {
     const that = this
 
     this.$apollo.query({
-      query: me
+      query: me,
+      fetchPolicy: 'no-cache'
     }).then((data) => {
       that.account = data.data.me
 
       that.$apollo.query({
         query: gamesHistory,
-        fetchPolicy: 'network-only'
+        fetchPolicy: 'no-cache'
       }).then((data) => {
         const gamesHistory = data.data.gamesHistory
 

@@ -17,6 +17,23 @@
             </v-card-actions>
           </v-card>
         </v-dialog>
+        <v-dialog v-model="showSurrenderDialog" persistent max-width="290">
+          <v-card>
+            <v-card-title class="headline">
+              Are you sure?
+            </v-card-title>
+            <v-card-text>This operation cannot be undone!</v-card-text>
+            <v-card-actions>
+              <v-spacer />
+              <v-btn color="primary" text @click="showSurrenderDialog = false">
+                No
+              </v-btn>
+              <v-btn color="error" text @click="showSurrenderDialog = false; surrender()">
+                Yes
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
         <v-card>
           <v-card-title>
             <v-row>
@@ -54,6 +71,13 @@
               />
             </div>
             <v-row>
+              <v-col class="text-center">
+                <v-btn color="error" @click="showSurrenderDialog = true">
+                  Surrender
+                </v-btn>
+              </v-col>
+            </v-row>
+            <v-row>
               <v-col>
                 <Chat :user-colors="userColors" />
               </v-col>
@@ -70,6 +94,7 @@ import Chat from '@/components/Chat'
 import ResizeObserver from 'vue-resize/src/components/ResizeObserver'
 import gameState from '@/apollo/subscriptions/gameState'
 import placeSymbol from '@/apollo/mutations/placeSymbol'
+import surrender from '@/apollo/mutations/surrender'
 import activeGame from '@/apollo/queries/activeGame'
 import colors from 'vuetify/es5/util/colors'
 import me from '@/apollo/queries/me'
@@ -92,6 +117,7 @@ export default {
     myTurn: false,
     showWinDialog: false,
     winner: null,
+    showSurrenderDialog: false,
     userColors: {},
     account: {},
     boardSize: 1
@@ -112,17 +138,26 @@ export default {
         } else if (gameStateData.__typename === 'GameWin') {
           that.winner = gameStateData.player
           that.showWinDialog = true
+        } else if (gameStateData.__typename === 'GameSurrender') {
+          if (that.myPlayer.user.username === gameStateData.player.user.username) {
+            that.winner = that.opponentPlayer
+          } else {
+            that.winner = that.myPlayer
+          }
+          that.showWinDialog = true
         }
       }
     })
 
     this.$apollo.query({
-      query: me
+      query: me,
+      fetchPolicy: 'no-cache'
     }).then((data) => {
       that.account = data.data.me
 
       that.$apollo.query({
-        query: activeGame
+        query: activeGame,
+        fetchPolicy: 'no-cache'
       }).then((data) => {
         const activeGame = data.data.activeGame
         if (!activeGame) {
@@ -168,8 +203,10 @@ export default {
   },
   methods: {
     onResize () {
-      this.$refs.game.width = this.squareSize * this.boardSize
-      this.$refs.game.height = this.squareSize * this.boardSize
+      if (this.$refs.game) {
+        this.$refs.game.width = this.squareSize * this.boardSize
+        this.$refs.game.height = this.squareSize * this.boardSize
+      }
 
       this.draw()
     },
@@ -288,6 +325,11 @@ export default {
           that.placeSymbol(gameX, gameY, this.myPlayer.symbol.toLowerCase())
           this.myTurn = false
         }
+      })
+    },
+    surrender () {
+      this.$apollo.mutate({
+        mutation: surrender
       })
     },
     placeSymbol (x, y, symbol) {

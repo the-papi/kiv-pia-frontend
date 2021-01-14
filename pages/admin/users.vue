@@ -98,7 +98,8 @@ export default {
   }),
   mounted () {
     this.$apollo.query({
-      query: me
+      query: me,
+      fetchPolicy: 'no-cache'
     }).then((data) => {
       this.account = data.data.me
     })
