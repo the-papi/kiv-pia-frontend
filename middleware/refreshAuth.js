@@ -8,8 +8,8 @@ export default ({ app }) => {
       }
     })
 
-    setTimeout(refresh, 120000)
+    setTimeout(refresh, 59 * 60 * 1000)
   }
 
-  setTimeout(refresh, 120000)
+  setTimeout(refresh, 59 * 60 * 1000)
 }
