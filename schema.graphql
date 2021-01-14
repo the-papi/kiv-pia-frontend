@@ -116,6 +116,8 @@ type Mutation {
   login(input: LoginInput!): JWT
   "Place assigned symbol at the given position"
   placeSymbol(input: PlaceSymbolInput!): Boolean!
+  "Refresh login by valid auth session"
+  refreshLogin: JWT
   "Registers new user"
   register(input: RegisterInput!): RegisterResult!
   "Reject friend request sent by another user"

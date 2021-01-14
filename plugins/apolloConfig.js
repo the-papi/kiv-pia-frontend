@@ -6,14 +6,19 @@ const fragmentMatcher = new IntrospectionFragmentMatcher({
   introspectionQueryResultData: graphqlIntrospection
 })
 
-export default function (context, foo, bar) {
+export default function (context) {
   return {
-    httpEndpoint: 'http://192.168.1.110:4000',
-    wsEndpoint: 'ws://192.168.1.110:4000/graphql',
+    httpEndpoint: process.env.GRAPHQL_HTTP_ENDPOINT || 'http://localhost:4000',
+    wsEndpoint: process.env.GRAPHQL_WS_ENDPOINT || 'ws://localhost:4000/graphql',
     cache: new InMemoryCache({ fragmentMatcher }),
     link: onError(({ graphQLErrors }) => {
       graphQLErrors.forEach((err) => {
         context.$snackbar.error('GraphQL error: ' + err.message)
+
+        if (err.extensions.code === 'UNAUTHENTICATED') {
+          context.$apolloHelpers.onLogout()
+          context.$router.push('/')
+        }
       })
     })
   }

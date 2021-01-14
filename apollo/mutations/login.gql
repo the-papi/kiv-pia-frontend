@@ -6,6 +6,5 @@ mutation Login($username: String!, $password: String!) {
     }
   ) {
     accessToken
-    refreshToken
   }
 }

@@ -56,7 +56,7 @@
         sm="12"
         md="9"
         lg="9"
-        xl="10"
+        xl="9"
         style="background-image: url('https://cdn.vuetifyjs.com/images/parallax/material.jpg'); background-size: cover;"
       >
         <v-container class="pa-0 pa-sm-2 pa-md-16" fill-height>
@@ -82,7 +82,7 @@
         sm="0"
         md="3"
         lg="3"
-        xl="2"
+        xl="3"
         class="pa-0"
       >
         <div class="d-flex" style="height: 100%">
@@ -107,7 +107,7 @@ export default {
     Snackbar,
     UserList
   },
-  middleware: ['auth'],
+  middleware: ['auth', 'refreshAuth'],
   data: () => ({
     users: [],
     account: {}

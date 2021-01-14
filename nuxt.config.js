@@ -79,5 +79,9 @@ export default {
 
   // Build Configuration (https://go.nuxtjs.dev/config-build)
   build: {
+  },
+  env: {
+    GRAPHQL_HTTP_ENDPOINT: process.env.GRAPHQL_HTTP_ENDPOINT,
+    GRAPHQL_WS_ENDPOINT: process.env.GRAPHQL_WS_ENDPOINT
   }
 }
