@@ -390,6 +390,7 @@ export default {
         })
         friendRequestObserver.subscribe({
           next (data) {
+            that.$snackbard.info(`User ${data.data.newFriendRequest.foreigner.username} sent you friend request`)
             that.users[data.data.newFriendRequest.foreigner.id].friendStatus = 'PendingRequest'
           }
         })

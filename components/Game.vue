@@ -134,7 +134,7 @@ export default {
         const gameStateData = data.data.gameState
         if (gameStateData.__typename === 'SymbolPlacement') {
           that.placeSymbol(gameStateData.x, gameStateData.y, gameStateData.symbol.toLowerCase())
-          that.myTurn = true
+          that.myTurn = gameStateData.symbol !== that.myPlayer.symbol
         } else if (gameStateData.__typename === 'GameWin') {
           that.winner = gameStateData.player
           that.showWinDialog = true
@@ -313,17 +313,11 @@ export default {
       const gameX = Math.floor((x + this.squareSize / 2) / this.squareSize)
       const gameY = Math.floor((y + this.squareSize / 2) / this.squareSize)
 
-      const that = this
       this.$apollo.mutate({
         mutation: placeSymbol,
         variables: {
           x: gameX,
           y: gameY
-        }
-      }).then((data) => {
-        if (data.data.placeSymbol) {
-          that.placeSymbol(gameX, gameY, this.myPlayer.symbol.toLowerCase())
-          this.myTurn = false
         }
       })
     },

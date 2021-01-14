@@ -2,6 +2,7 @@ subscription {
   newFriendRequest {
     foreigner {
       id
+      username
     }
   }
 }
