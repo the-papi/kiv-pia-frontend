@@ -390,7 +390,7 @@ export default {
         })
         friendRequestObserver.subscribe({
           next (data) {
-            that.$snackbard.info(`User ${data.data.newFriendRequest.foreigner.username} sent you friend request`)
+            that.$snackbar.info(`User ${data.data.newFriendRequest.foreigner.username} sent you friend request`)
             that.users[data.data.newFriendRequest.foreigner.id].friendStatus = 'PendingRequest'
           }
         })
@@ -448,6 +448,20 @@ export default {
         } else if (status === 'Offline') {
           this.users[id].online = false
         }
+      } else {
+        this.$apollo.query({
+          query: users,
+          fetchPolicy: 'no-cache'
+        }).then((data) => {
+          for (const user of data.data.users) {
+            if (user.username === this.account.username) {
+              continue
+            }
+            this.$set(this.users, user.id, {
+              ...user
+            })
+          }
+        })
       }
     },
     sendFriendRequest (userId) {

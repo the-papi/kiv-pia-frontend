@@ -76,6 +76,10 @@ export default {
 
         that.games = []
 
+        if (!gamesHistory) {
+            return
+        }
+
         for (const game of gamesHistory) {
           const datetime = moment(game.datetime)
 
